@@ -1,0 +1,25 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "hrci"
+version = "0.1.0"
+description = "High Resolution Corpus Interaction"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "datasets",
+    "huggingface-hub",
+    "matplotlib",
+    "numpy",
+    "pyarrow",
+    "scipy",
+]
+
+[project.scripts]
+hrci-export-bc-plus-docs = "hrci.benchmark.export_bc_plus_docs:main"
+hrci-run-pi-rpc = "hrci.benchmark.pi_rpc_runner:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/hrci"]
