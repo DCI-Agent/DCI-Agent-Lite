@@ -11,7 +11,7 @@ import pyarrow.parquet as pq
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_SOURCE_DIR = REPO_ROOT / "corpus" / "bc-plus-corpus" / "data"
-DEFAULT_OUTPUT_DIR = REPO_ROOT / "corpus" / "bc plus docs"
+DEFAULT_OUTPUT_DIR = REPO_ROOT / "corpus" / "bc_plus_docs"
 
 TITLE_RE = re.compile(r"(?mi)^title:\s*(.+?)\s*$")
 INVALID_CHARS_RE = re.compile(r'[<>:"/\\|?*\x00-\x1f]')

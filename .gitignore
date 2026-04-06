@@ -213,3 +213,5 @@ __marimo__/
 /*.log
 /corpus
 /outputs
+/data
+/pi-mono

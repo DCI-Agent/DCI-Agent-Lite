@@ -3,13 +3,13 @@
 For HRCI local runs, replace the original corpus placeholder with the exported local folder:
 
 ```text
-/Users/dongfuj/Workspace/HRCI/corpus/bc plus docs
+/Users/dongfuj/Workspace/HRCI/corpus/bc_plus_docs
 ```
 
 or, more portably:
 
 ```text
-$REPO_ROOT/corpus/bc plus docs
+$REPO_ROOT/corpus/bc_plus_docs
 ```
 
 qid 1041 (23 turn)

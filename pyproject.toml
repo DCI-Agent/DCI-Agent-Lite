@@ -20,6 +20,7 @@ dependencies = [
 [project.scripts]
 hrci-export-bc-plus-docs = "hrci.benchmark.export_bc_plus_docs:main"
 hrci-run-pi-rpc = "hrci.benchmark.pi_rpc_runner:main"
+hrci-print-pi-system-prompt = "hrci.benchmark.pi_system_prompt:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/hrci"]
