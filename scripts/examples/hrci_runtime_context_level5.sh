@@ -6,8 +6,8 @@ QUESTION="Read the files in the current directory. Do not use web search. Use rg
 
 cd "$REPO_ROOT"
 uv run hrci-run-pi-rpc \
-  --provider anthropic \
-  --model claude-sonnet-4-20250514 \
+  --provider openai \
+  --model gpt-5.4-nano \
   --output-dir "$REPO_ROOT/outputs/runs/hrci-runtime-context-level5" \
   --resume \
   --package-dir "$REPO_ROOT/pi-mono/packages/coding-agent" \
