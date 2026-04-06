@@ -91,6 +91,23 @@ def count_text_stats(text: str) -> Dict[str, int]:
     }
 
 
+def parse_iso8601(value: Optional[str]) -> Optional[datetime]:
+    if not value or not isinstance(value, str):
+        return None
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
+def seconds_between(start: Optional[str], end: Optional[str]) -> Optional[float]:
+    start_dt = parse_iso8601(start)
+    end_dt = parse_iso8601(end)
+    if start_dt is None or end_dt is None:
+        return None
+    return max(0.0, (end_dt - start_dt).total_seconds())
+
+
 def expand_extra_args(values: List[str]) -> List[str]:
     expanded: List[str] = []
     for value in values:
@@ -421,6 +438,8 @@ class RunRecorder:
         self.resume = resume
         self.conversation_features = conversation_features
         self.output_dir.mkdir(parents=True, exist_ok=True)
+        self._pending_tool_call_starts: Dict[str, str] = {}
+        self._completed_tool_call_timings: Dict[str, Dict[str, Any]] = {}
 
         self.events_path = self.output_dir / "events.jsonl"
         self.state_path = self.output_dir / "state.json"
@@ -553,7 +572,84 @@ class RunRecorder:
                 "latest": None,
                 "error": None,
             }
+        self._restore_tool_call_timing_state()
         self._write_artifacts()
+
+    def _restore_tool_call_timing_state(self) -> None:
+        self._pending_tool_call_starts = {}
+        self._completed_tool_call_timings = {}
+        for entry in self.state.get("tool_calls", []):
+            tool_call_id = entry.get("toolCallId")
+            if not isinstance(tool_call_id, str) or not tool_call_id:
+                continue
+            event_type = entry.get("event")
+            recorded_at = entry.get("recorded_at")
+            if event_type == "tool_execution_start" and isinstance(recorded_at, str):
+                self._pending_tool_call_starts[tool_call_id] = recorded_at
+            elif event_type == "tool_execution_end":
+                timing = self._build_tool_execution_metadata(
+                    tool_call_id=tool_call_id,
+                    started_at=entry.get("started_at"),
+                    finished_at=entry.get("finished_at") or recorded_at,
+                )
+                if timing is not None:
+                    self._completed_tool_call_timings[tool_call_id] = timing
+                self._pending_tool_call_starts.pop(tool_call_id, None)
+        self._refresh_existing_tool_message_annotations()
+
+    def _build_tool_execution_metadata(
+        self,
+        *,
+        tool_call_id: str,
+        started_at: Optional[str],
+        finished_at: Optional[str],
+    ) -> Optional[Dict[str, Any]]:
+        if not isinstance(started_at, str) or not isinstance(finished_at, str):
+            return None
+        duration_seconds = seconds_between(started_at, finished_at)
+        if duration_seconds is None:
+            return None
+        return {
+            "tool_call_id": tool_call_id,
+            "status": "completed",
+            "started_at": started_at,
+            "finished_at": finished_at,
+            "duration_seconds": duration_seconds,
+            "duration_ms": int(round(duration_seconds * 1000)),
+        }
+
+    def _annotate_tool_message(self, message: Dict[str, Any]) -> Dict[str, Any]:
+        if message.get("role") != "toolResult":
+            return message
+        tool_call_id = message.get("toolCallId")
+        if not isinstance(tool_call_id, str) or not tool_call_id:
+            return message
+        timing = self._completed_tool_call_timings.get(tool_call_id)
+        if timing is not None:
+            message["tool_execution"] = clone_json(timing)
+        return message
+
+    def _annotate_messages_with_tool_timing(self, messages: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        annotated: List[Dict[str, Any]] = []
+        for message in messages:
+            if not isinstance(message, dict):
+                annotated.append(message)
+                continue
+            annotated.append(self._annotate_tool_message(clone_json(message)))
+        return annotated
+
+    def _refresh_existing_tool_message_annotations(self) -> None:
+        messages = self.conversation_full.get("messages")
+        if isinstance(messages, list):
+            self.conversation_full["messages"] = self._annotate_messages_with_tool_timing(messages)
+        pending_message = self.conversation_full.get("pending_message")
+        if isinstance(pending_message, dict):
+            self.conversation_full["pending_message"] = self._annotate_tool_message(clone_json(pending_message))
+        latest = self.latest_model_context.get("latest")
+        if isinstance(latest, dict):
+            latest_messages = latest.get("messages")
+            if isinstance(latest_messages, list):
+                latest["messages"] = self._annotate_messages_with_tool_timing(latest_messages)
 
     def _load_existing_state(self) -> Dict[str, Any]:
         state = read_json_if_exists(self.state_path)
@@ -659,6 +755,7 @@ class RunRecorder:
         if not message:
             return None
         normalized = clone_json(message)
+        normalized = self._annotate_tool_message(normalized)
 
         if normalized.get("role") == "assistant":
             if self.conversation_features.strip_thinking:
@@ -852,15 +949,38 @@ class RunRecorder:
             if assistant_event.get("partial"):
                 self._set_pending_message(assistant_event.get("partial"))
         elif event_type in {"tool_execution_start", "tool_execution_end"}:
+            tool_call_id = event.get("toolCallId")
+            started_at: Optional[str] = None
+            finished_at: Optional[str] = None
+            duration_seconds: Optional[float] = None
+
+            if isinstance(tool_call_id, str) and tool_call_id:
+                if event_type == "tool_execution_start":
+                    self._pending_tool_call_starts[tool_call_id] = recorded_at
+                    started_at = recorded_at
+                else:
+                    started_at = self._pending_tool_call_starts.pop(tool_call_id, None)
+                    finished_at = recorded_at
+                    timing = self._build_tool_execution_metadata(
+                        tool_call_id=tool_call_id,
+                        started_at=started_at,
+                        finished_at=finished_at,
+                    )
+                    if timing is not None:
+                        self._completed_tool_call_timings[tool_call_id] = timing
+                        duration_seconds = timing["duration_seconds"]
             self.state["tool_calls"].append(
                 {
                     "recorded_at": recorded_at,
                     "event": event_type,
-                    "toolCallId": event.get("toolCallId"),
+                    "toolCallId": tool_call_id,
                     "toolName": event.get("toolName"),
                     "args": event.get("args"),
                     "isError": event.get("isError"),
                     "result": event.get("result"),
+                    "started_at": started_at,
+                    "finished_at": finished_at,
+                    "duration_seconds": duration_seconds,
                 }
             )
         elif event_type == "provider_request_context":
@@ -873,6 +993,11 @@ class RunRecorder:
         latest_payload = event.get("payload")
         request_index = event.get("requestIndex")
         runtime_context_management = event.get("runtimeContextManagement")
+        annotated_messages = (
+            self._annotate_messages_with_tool_timing(latest_messages)
+            if isinstance(latest_messages, list)
+            else []
+        )
         self.latest_model_context["request_count"] = max(
             int(self.latest_model_context.get("request_count", 0)),
             int(request_index) if isinstance(request_index, int) else int(self.latest_model_context.get("request_count", 0)),
@@ -887,8 +1012,8 @@ class RunRecorder:
             "runtime_context_management": (
                 clone_json(runtime_context_management) if runtime_context_management is not None else None
             ),
-            "message_count": len(latest_messages) if isinstance(latest_messages, list) else 0,
-            "messages": clone_json(latest_messages) if isinstance(latest_messages, list) else [],
+            "message_count": len(annotated_messages),
+            "messages": annotated_messages,
             "payload": clone_json(latest_payload),
         }
 
