@@ -115,6 +115,11 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--pi-thinking-level",
+        choices=["", "off", "minimal", "low", "medium", "high", "xhigh"],
+        help="Pi thinking/reasoning level forwarded as --thinking <level>.",
+    )
+    parser.add_argument(
         "--max-concurrency",
         type=int,
         default=4,
@@ -368,8 +373,66 @@ def extract_tool_metrics(state: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
+def judge_result_succeeded(judge_result: Optional[Dict[str, Any]]) -> bool:
+    if not isinstance(judge_result, dict):
+        return False
+    if judge_result.get("error"):
+        return False
+    return isinstance(judge_result.get("is_correct"), bool)
+
+
+def existing_result_succeeded(existing_result: Optional[Dict[str, Any]]) -> bool:
+    if not isinstance(existing_result, dict):
+        return False
+    if existing_result.get("run_error"):
+        return False
+    if judge_result_succeeded(existing_result.get("judge_result")):
+        return True
+    return isinstance(existing_result.get("is_correct"), bool)
+
+
+def build_failed_judge_result(*, model: str, error: str, attempts: int) -> Dict[str, Any]:
+    return {
+        "judge_model": model,
+        "judged_at": utc_now(),
+        "judge_status": "failed",
+        "is_correct": None,
+        "normalized_prediction": None,
+        "reason": "",
+        "error": error,
+        "attempt_count": attempts,
+        "usage": {},
+        "cost_estimate_usd": {
+            "input_cost": 0.0,
+            "cached_input_cost": 0.0,
+            "output_cost": 0.0,
+            "total_cost": 0.0,
+        },
+    }
+
+
 async def judge_answer_async(**kwargs: Any) -> Dict[str, Any]:
-    return await asyncio.to_thread(judge_answer_sync, **kwargs)
+    max_attempts = 3
+    last_error: Optional[str] = None
+    model = str(kwargs.get("model") or "")
+
+    for attempt in range(1, max_attempts + 1):
+        try:
+            result = await asyncio.to_thread(judge_answer_sync, **kwargs)
+            result["judge_status"] = "completed"
+            result["attempt_count"] = attempt
+            return result
+        except Exception as exc:
+            last_error = str(exc)
+            if attempt >= max_attempts:
+                break
+            await asyncio.sleep(float(attempt))
+
+    return build_failed_judge_result(
+        model=model,
+        error=last_error or "unknown judge error",
+        attempts=max_attempts,
+    )
 
 
 def build_run_command(
@@ -408,6 +471,8 @@ def build_run_command(
         cmd.extend(["--append-system-prompt-file", str(args.append_system_prompt_file)])
 
     pi_extra_args = list(args.pi_extra_arg)
+    if args.pi_thinking_level:
+        pi_extra_args.append(f"--thinking {args.pi_thinking_level}")
     if args.runtime_context_level:
         pi_extra_args.append(f"--context-management-level {args.runtime_context_level}")
     for extra_arg in pi_extra_args:
@@ -418,6 +483,32 @@ def build_run_command(
 
 def load_existing_query_result(query_dir: Path) -> Optional[Dict[str, Any]]:
     return read_json_if_exists(query_dir / "result.json")
+
+
+def existing_run_has_error(
+    query_dir: Path,
+    *,
+    existing_result: Optional[Dict[str, Any]] = None,
+    existing_state: Optional[Dict[str, Any]] = None,
+) -> bool:
+    result = existing_result if existing_result is not None else (load_existing_query_result(query_dir) or {})
+    state = existing_state if existing_state is not None else (read_json_if_exists(query_dir / "state.json") or {})
+    conversation = read_json_if_exists(query_dir / "conversation.json") or {}
+    conversation_full = read_json_if_exists(query_dir / "conversation_full.json") or {}
+    latest_model_context = read_json_if_exists(query_dir / "latest_model_context.json") or {}
+
+    if result.get("run_error"):
+        return True
+    if state.get("error"):
+        return True
+
+    for artifact in (conversation, conversation_full, latest_model_context):
+        if artifact.get("error"):
+            return True
+        if artifact.get("status") == "failed":
+            return True
+
+    return False
 
 
 def has_core_run_artifacts(query_dir: Path) -> bool:
@@ -611,12 +702,14 @@ def aggregate_results(results: List[Dict[str, Any]]) -> Dict[str, Any]:
 
 def query_needs_execution_or_judging(query_dir: Path) -> bool:
     existing_result = load_existing_query_result(query_dir)
-    if existing_result is not None and existing_result.get("is_correct") is not None:
+    existing_state = read_json_if_exists(query_dir / "state.json") or {}
+    has_error = existing_run_has_error(query_dir, existing_result=existing_result, existing_state=existing_state)
+
+    if existing_result_succeeded(existing_result) and not has_error:
         return False
 
-    existing_state = read_json_if_exists(query_dir / "state.json") or {}
     existing_judge_result = read_json_if_exists(query_dir / "eval_result.json")
-    if existing_state.get("status") == "completed" and existing_judge_result is not None:
+    if existing_state.get("status") == "completed" and judge_result_succeeded(existing_judge_result) and not has_error:
         return False
 
     return True
@@ -1229,13 +1322,15 @@ async def run_single_query(
     question_text = build_benchmark_prompt(str(row["query"]), args.corpus_dir.resolve())
 
     existing_result = load_existing_query_result(query_dir)
-    if existing_result is not None and existing_result.get("is_correct") is not None:
+    existing_state = read_json_if_exists(query_dir / "state.json") or {}
+    has_error = existing_run_has_error(query_dir, existing_result=existing_result, existing_state=existing_state)
+
+    if existing_result_succeeded(existing_result) and not has_error:
         return existing_result
 
-    existing_state = read_json_if_exists(query_dir / "state.json") or {}
     resume_run = query_dir.exists() and bool(existing_state)
     existing_judge_result = read_json_if_exists(query_dir / "eval_result.json")
-    if existing_state.get("status") == "completed" and existing_judge_result is not None:
+    if existing_state.get("status") == "completed" and judge_result_succeeded(existing_judge_result) and not has_error:
         result = gather_query_metrics(
             row=row,
             query_dir=query_dir,
@@ -1352,6 +1447,7 @@ async def main_async() -> int:
         "system_prompt_file": str(args.system_prompt_file.resolve()) if args.system_prompt_file else None,
         "append_system_prompt_file": str(args.append_system_prompt_file.resolve()) if args.append_system_prompt_file else None,
         "pi_extra_arg": list(args.pi_extra_arg),
+        "pi_thinking_level": args.pi_thinking_level,
         "max_concurrency": args.max_concurrency,
         "limit": args.limit,
         "judge_model": args.judge_model,
