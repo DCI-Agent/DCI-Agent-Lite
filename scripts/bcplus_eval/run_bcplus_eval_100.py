@@ -3,7 +3,9 @@
 import argparse
 import asyncio
 import json
+import math
 import os
+import re
 import shutil
 import shlex
 import sys
@@ -120,6 +122,15 @@ def parse_args() -> argparse.Namespace:
         help="Pi thinking/reasoning level forwarded as --thinking <level>.",
     )
     parser.add_argument(
+        "--enable-ir",
+        action="store_true",
+        default=False,
+        help=(
+            "Use the IR (information retrieval) prompt instead of the default benchmark prompt. "
+            "The IR prompt instructs the agent to rank relevant documents with NDCG-style instructions."
+        ),
+    )
+    parser.add_argument(
         "--max-concurrency",
         type=int,
         default=4,
@@ -168,6 +179,12 @@ def parse_args() -> argparse.Namespace:
         "--node-max-old-space-size-mb",
         type=int,
         help="If set, export NODE_OPTIONS=--max-old-space-size=<MB> for each pi subprocess.",
+    )
+    parser.add_argument(
+        "--corpus-hint",
+        type=str,
+        default=None,
+        help="Optional hint about corpus structure, inserted into the IR prompt to guide search strategy.",
     )
     return parser.parse_args()
 
@@ -268,6 +285,68 @@ def expand_extra_args(values: List[str]) -> List[str]:
     return expanded
 
 
+def parse_retrieved_docs(result_text: str) -> List[str]:
+    """Extract document paths from the 'Relevant Documents' block in model output."""
+    result_text = result_text.replace("\\n", "\n")
+    section_match = re.search(
+        r"Relevant Documents.*?(1\..*?)(?:\n\n|\Z)",
+        result_text,
+        re.DOTALL,
+    )
+    if not section_match:
+        return []
+    paths: List[str] = []
+    for line in section_match.group(1).splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        line = re.sub(r"^[\d]+\.\s*", "", line)
+        line = re.sub(r"^[-*]\s*", "", line).strip()
+        if line and not line.startswith("("):
+            paths.append(line)
+    return paths
+
+
+def normalize_retrieved_path(path: str, corpus_dir: Optional[Path]) -> str:
+    """Strip corpus_dir prefix from a path, falling back to basename."""
+    path = path.replace("\\", "/")
+    # Strip leading ./ or /
+    path = re.sub(r"^\.?/+", "", path)
+    if corpus_dir is not None:
+        prefix = str(corpus_dir).replace("\\", "/").rstrip("/") + "/"
+        if path.startswith(prefix):
+            return path[len(prefix):]
+    # Return only the filename (basename) to avoid ./filename vs filename mismatches
+    return path.split("/")[-1]
+
+
+def compute_ndcg_at_k(retrieved: List[str], gold_set: set, k: int) -> float:
+    if not gold_set:
+        return 0.0
+    dcg = sum(
+        1.0 / math.log2(rank + 2)
+        for rank, doc in enumerate(retrieved[:k])
+        if doc in gold_set
+    )
+    ideal_k = min(len(gold_set), k)
+    idcg = sum(1.0 / math.log2(rank + 2) for rank in range(ideal_k))
+    return dcg / idcg if idcg > 0 else 0.0
+
+
+def compute_ir_ndcg(final_text: str, row: Dict[str, Any], corpus_dir: Optional[Path], k: int = 10) -> float:
+    """Parse retrieved docs from agent output and compute NDCG@k against gold_docs/gold_ids."""
+    gold_docs = row.get("gold_docs") or row.get("gold_ids") or []
+    gold_set = {normalize_retrieved_path(g, corpus_dir) for g in gold_docs}
+    retrieved_raw = parse_retrieved_docs(final_text)
+    retrieved_norm = [normalize_retrieved_path(p, corpus_dir) for p in retrieved_raw]
+    # 过滤掉 query 文档本身（query_id 对应的文档不应出现在检索结果中）
+    query_id = row.get("query_id", "")
+    query_doc = f"{query_id}.txt" if query_id else ""
+    if query_doc:
+        retrieved_norm = [doc for doc in retrieved_norm if doc != query_doc]
+    return compute_ndcg_at_k(retrieved_norm, gold_set, k)
+
+
 def build_benchmark_prompt(query: str, corpus_dir: Path) -> str:
     return (
         "Answer the following question. "
@@ -275,6 +354,42 @@ def build_benchmark_prompt(query: str, corpus_dir: Path) -> str:
         "**Do Not use web search!** Use ripgrep (rg) instead of grep for fast searching.\n\n"
         "QUESTION:\n"
         f"{query}\n"
+    )
+
+
+def build_ir_prompt(query: str, corpus_dir: Path, corpus_hint: str | None = None) -> str:
+    corpus_hint_section = (
+        f"CORPUS STRUCTURE:\n{corpus_hint}\n\n"
+        if corpus_hint
+        else ""
+    )
+    return (
+        f"You are a careful research assistant. Answer the question below using ONLY documents in @{corpus_dir}.\n"
+        "Do not use online search or any external tools beyond Grep and Bash.\n\n"
+        f"Question:\n{query}\n\n"
+        f"{corpus_hint_section}"
+        "SEARCH STRATEGY (follow exactly):\n"
+        "1. Use Grep/Bash ONLY — do NOT use the Agent tool, spawn subagents, or browse the web.\n"
+        "2. Run multiple Grep/Bash searches IN PARALLEL within a single response to save time.\n"
+        "3. Use diverse, targeted keywords to maximize recall before drawing conclusions.\n"
+        "4. After each round, reflect on gaps and launch follow-up searches to cover missing angles.\n"
+        "5. Do NOT stop after finding a few documents — exhaust all plausible search angles.\n\n"
+        "RETRIEVAL INSTRUCTIONS:\n"
+        "- Both recall AND precision matter equally — the output is evaluated with NDCG, which penalizes both missing relevant documents and including irrelevant ones.\n"
+        "- Find EVERY document that is genuinely relevant. Missing a gold document hurts recall.\n"
+        "- Read each candidate document carefully before including it. Including an irrelevant document hurts precision.\n"
+        "- A document is relevant only if it directly addresses the question or provides essential supporting evidence for the answer. Do NOT include tangential or loosely related documents.\n\n"
+        "RANKING INSTRUCTIONS:\n"
+        "- Rank the final list by relevance: the most directly useful document for answering the question goes first. Ranking quality affects NDCG score.\n\n"
+        f"Your response MUST follow this exact format:\n"
+        f"Relevant Documents (ranked by relevance, most relevant first; maximum 20):\n"
+        f"1. {{corpus}}/path/to/doc1.txt\n"
+        f"2. {{corpus}}/path/to/doc2.txt\n"
+        f"3. {{corpus}}/path/to/doc3.txt\n"
+        f"(use full relative paths from the working directory; list at most 20 documents; omit any document that is not directly relevant)\n\n"
+        f"Explanation: {{step-by-step reasoning with inline citations, e.g. [{{corpus}}/relative_path]}}\n"
+        f"Exact Answer: {{concise final answer only}}\n"
+        f"Confidence: {{0–100%; use below 50% if evidence is weak, ambiguous, or missing}}\n"
     )
 
 
@@ -541,6 +656,7 @@ def gather_query_metrics(
     launcher_started_at: Optional[str],
     launcher_finished_at: Optional[str],
     judge_result: Optional[Dict[str, Any]],
+    ndcg_at_10: Optional[float] = None,
 ) -> Dict[str, Any]:
     state = read_json_if_exists(query_dir / "state.json") or {}
     latest_model_context = read_json_if_exists(query_dir / "latest_model_context.json") or {}
@@ -588,6 +704,7 @@ def gather_query_metrics(
         "judge_usage": judge_usage,
         "judge_cost_estimate_usd": judge_cost,
         "is_correct": None if judge_result is None else judge_result.get("is_correct"),
+        "ndcg_at_10": ndcg_at_10,
         "runtime_context_management": runtime_context_management,
         "conversation_features": state.get("conversation_features"),
         "request_count": latest_model_context.get("request_count"),
@@ -672,6 +789,9 @@ def aggregate_results(results: List[Dict[str, Any]]) -> Dict[str, Any]:
     accuracy_over_judged = (correct / judged) if judged else 0.0
     total_cost = totals["agent_cost_total"] + totals["judge_cost_total"]
 
+    ndcg_values = [float(r["ndcg_at_10"]) for r in results if r.get("ndcg_at_10") is not None]
+    avg_ndcg_at_10 = sum(ndcg_values) / len(ndcg_values) if ndcg_values else None
+
     return {
         "counts": {
             "total": total,
@@ -684,6 +804,7 @@ def aggregate_results(results: List[Dict[str, Any]]) -> Dict[str, Any]:
             "over_total": accuracy_over_total,
             "over_judged": accuracy_over_judged,
         },
+        "ndcg_at_10": avg_ndcg_at_10,
         "totals": {
             **totals,
             "overall_cost_total": total_cost,
@@ -1220,12 +1341,19 @@ def write_markdown_report(
     correct_slice = ((slices.get("correct") or {}).get("wall_time_seconds") or {})
     incorrect_slice = ((slices.get("incorrect") or {}).get("wall_time_seconds") or {})
 
+    avg_ndcg = summary.get("ndcg_at_10")
+    headline_metric = (
+        f"- NDCG@10: {avg_ndcg:.4f}"
+        if avg_ndcg is not None
+        else f"- Accuracy: {accuracy.get('over_total', 0.0):.2%} ({counts.get('correct', 0)}/{counts.get('total', 0)})"
+    )
+
     lines = [
         "# BrowseComp Eval Analysis",
         "",
         "## Headline",
         "",
-        f"- Accuracy: {accuracy.get('over_total', 0.0):.2%} ({counts.get('correct', 0)}/{counts.get('total', 0)})",
+        headline_metric,
         f"- Failed runs: {counts.get('failed_runs', 0)}",
         f"- Total cost: {format_usd(safe_float(totals.get('overall_cost_total')))}",
         f"- Cost per correct: {format_usd(safe_float(cost_efficiency.get('cost_per_correct_usd')))}",
@@ -1319,7 +1447,11 @@ async def run_single_query(
     query_dir: Path,
     api_key: str,
 ) -> Dict[str, Any]:
-    question_text = build_benchmark_prompt(str(row["query"]), args.corpus_dir.resolve())
+    corpus_dir_resolved = args.corpus_dir.resolve()
+    if args.enable_ir:
+        question_text = build_ir_prompt(str(row["query"]), corpus_dir_resolved, corpus_hint=getattr(args, "corpus_hint", None))
+    else:
+        question_text = build_benchmark_prompt(str(row["query"]), corpus_dir_resolved)
 
     existing_result = load_existing_query_result(query_dir)
     existing_state = read_json_if_exists(query_dir / "state.json") or {}
@@ -1330,17 +1462,32 @@ async def run_single_query(
 
     resume_run = query_dir.exists() and bool(existing_state)
     existing_judge_result = read_json_if_exists(query_dir / "eval_result.json")
-    if existing_state.get("status") == "completed" and judge_result_succeeded(existing_judge_result) and not has_error:
-        result = gather_query_metrics(
-            row=row,
-            query_dir=query_dir,
-            launcher_returncode=None,
-            launcher_started_at=None,
-            launcher_finished_at=None,
-            judge_result=existing_judge_result,
-        )
-        write_json(query_dir / "result.json", result)
-        return result
+    if existing_state.get("status") == "completed" and not has_error:
+        if args.enable_ir:
+            existing_final_text = (read_text_if_exists(query_dir / "final.txt") or existing_state.get("assistant_text") or "").strip()
+            ndcg_score = compute_ir_ndcg(existing_final_text, row, args.corpus_dir.resolve())
+            result = gather_query_metrics(
+                row=row,
+                query_dir=query_dir,
+                launcher_returncode=None,
+                launcher_started_at=None,
+                launcher_finished_at=None,
+                judge_result=None,
+                ndcg_at_10=ndcg_score,
+            )
+            write_json(query_dir / "result.json", result)
+            return result
+        elif judge_result_succeeded(existing_judge_result):
+            result = gather_query_metrics(
+                row=row,
+                query_dir=query_dir,
+                launcher_returncode=None,
+                launcher_started_at=None,
+                launcher_finished_at=None,
+                judge_result=existing_judge_result,
+            )
+            write_json(query_dir / "result.json", result)
+            return result
 
     prepare_query_dir_for_run(query_dir, resume_run=resume_run)
     launcher_started_at = utc_now()
@@ -1372,27 +1519,38 @@ async def run_single_query(
     state = read_json_if_exists(query_dir / "state.json") or {}
     final_text = (read_text_if_exists(query_dir / "final.txt") or state.get("assistant_text") or "").strip()
 
-    judge_result = await judge_answer_async(
-        api_key=api_key,
-        model=args.judge_model,
-        timeout_seconds=args.judge_timeout_seconds,
-        question=str(row["query"]),
-        gold_answer=str(row["answer"]),
-        predicted_answer=final_text,
-        input_price_per_1m=args.judge_input_price_per_1m,
-        cached_input_price_per_1m=args.judge_cached_input_price_per_1m,
-        output_price_per_1m=args.judge_output_price_per_1m,
-    )
-    write_json(query_dir / "eval_result.json", judge_result)
-
-    result = gather_query_metrics(
-        row=row,
-        query_dir=query_dir,
-        launcher_returncode=launcher_returncode,
-        launcher_started_at=launcher_started_at,
-        launcher_finished_at=launcher_finished_at,
-        judge_result=judge_result,
-    )
+    if args.enable_ir:
+        ndcg_score = compute_ir_ndcg(final_text, row, args.corpus_dir.resolve())
+        result = gather_query_metrics(
+            row=row,
+            query_dir=query_dir,
+            launcher_returncode=launcher_returncode,
+            launcher_started_at=launcher_started_at,
+            launcher_finished_at=launcher_finished_at,
+            judge_result=None,
+            ndcg_at_10=ndcg_score,
+        )
+    else:
+        judge_result = await judge_answer_async(
+            api_key=api_key,
+            model=args.judge_model,
+            timeout_seconds=args.judge_timeout_seconds,
+            question=str(row["query"]),
+            gold_answer=str(row["answer"]),
+            predicted_answer=final_text,
+            input_price_per_1m=args.judge_input_price_per_1m,
+            cached_input_price_per_1m=args.judge_cached_input_price_per_1m,
+            output_price_per_1m=args.judge_output_price_per_1m,
+        )
+        write_json(query_dir / "eval_result.json", judge_result)
+        result = gather_query_metrics(
+            row=row,
+            query_dir=query_dir,
+            launcher_returncode=launcher_returncode,
+            launcher_started_at=launcher_started_at,
+            launcher_finished_at=launcher_finished_at,
+            judge_result=judge_result,
+        )
     write_json(query_dir / "result.json", result)
     return result
 
@@ -1487,11 +1645,19 @@ async def main_async() -> int:
         async with results_lock:
             results_by_query_id[query_id] = result
             await persist_aggregate()
-            accuracy_so_far = aggregate_results(list(results_by_query_id.values()))["accuracy"]["over_total"]
+            partial_summary = aggregate_results(list(results_by_query_id.values()))
+            if args.enable_ir:
+                avg_ndcg = partial_summary.get("ndcg_at_10")
+                metric_str = f"ndcg@10={avg_ndcg:.4f}" if avg_ndcg is not None else "ndcg@10=n/a"
+                extra_str = f"ndcg@10={result.get('ndcg_at_10', 0.0):.4f}"
+            else:
+                accuracy_so_far = partial_summary["accuracy"]["over_total"]
+                metric_str = f"acc={accuracy_so_far:.4f}"
+                extra_str = f"correct={result.get('is_correct')}"
             print(
                 f"[{len(results_by_query_id)}/{len(rows)}] qid={query_id} "
-                f"status={result.get('run_status')} correct={result.get('is_correct')} "
-                f"acc={accuracy_so_far:.4f}",
+                f"status={result.get('run_status')} {extra_str} "
+                f"{metric_str}",
                 flush=True,
             )
 
@@ -1525,13 +1691,24 @@ async def main_async() -> int:
         include_figures=True,
     )
 
-    print(
-        "Finished bcplus eval: "
-        f"accuracy_over_total={final_summary['accuracy']['over_total']:.4f}, "
-        f"correct={final_summary['counts']['correct']}/{final_summary['counts']['total']}, "
-        f"overall_cost=${final_summary['totals']['overall_cost_total']:.4f}",
-        flush=True,
-    )
+    if args.enable_ir:
+        avg_ndcg = final_summary.get("ndcg_at_10")
+        ndcg_str = f"{avg_ndcg:.4f}" if avg_ndcg is not None else "n/a"
+        print(
+            "Finished bcplus eval (IR mode): "
+            f"ndcg@10={ndcg_str}, "
+            f"total={final_summary['counts']['total']}, "
+            f"overall_cost=${final_summary['totals']['overall_cost_total']:.4f}",
+            flush=True,
+        )
+    else:
+        print(
+            "Finished bcplus eval: "
+            f"accuracy_over_total={final_summary['accuracy']['over_total']:.4f}, "
+            f"correct={final_summary['counts']['correct']}/{final_summary['counts']['total']}, "
+            f"overall_cost=${final_summary['totals']['overall_cost_total']:.4f}",
+            flush=True,
+        )
     return 0
 
 

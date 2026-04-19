@@ -9,7 +9,9 @@ description = "High Resolution Corpus Interaction"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "anthropic>=0.91.0",
     "datasets",
+    "httpx>=0.28.1",
     "huggingface-hub",
     "matplotlib",
     "numpy",
