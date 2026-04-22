@@ -3,7 +3,7 @@ $ErrorActionPreference = "Stop"
 
 # Auto-load .env from repo root if present
 $SCRIPT_DIR = Split-Path -Parent $PSCommandPath
-$REPO_ROOT = Resolve-Path (Join-Path $SCRIPT_DIR "../..")
+$REPO_ROOT = Resolve-Path (Join-Path $SCRIPT_DIR "../../..")
 if (Test-Path (Join-Path $REPO_ROOT ".env")) {
     Get-Content (Join-Path $REPO_ROOT ".env") | ForEach-Object {
         if ($_ -match '^\s*([^#][^=]+)=(.*)$') {
@@ -12,14 +12,16 @@ if (Test-Path (Join-Path $REPO_ROOT ".env")) {
     }
 }
 
-$level = $args[0] ?? "level5"
+$level = if ($args[0]) { $args[0] } else { "level5" }
 $concurrency = "10"
 $node_heap_mb = "8192"
-$thinking_level = $args[1] ?? ""
+$thinking_level = if ($args[1]) { $args[1] } else { "" }
 $output_root = "$($REPO_ROOT.Path)/outputs/bcplus_eval_100/openai_${level}_concurrency${concurrency}"
 if ($thinking_level) {
     $output_root = "${output_root}_thinking${thinking_level}"
 }
+
+$thinkingArg = if ($thinking_level) { @("--pi-thinking-level", $thinking_level) } else { @() }
 
 uv run python "$($REPO_ROOT.Path)/scripts/bcplus_eval/run_bcplus_eval_100.py" `
   --dataset "$($REPO_ROOT.Path)/data/bcplus_sampled_100_qa_with_gold_doc.jsonl" `
@@ -32,6 +34,6 @@ uv run python "$($REPO_ROOT.Path)/scripts/bcplus_eval/run_bcplus_eval_100.py" `
   --tools read,bash `
   --max-turns 100 `
   --max-concurrency "$concurrency" `
-  --pi-thinking-level "$thinking_level" `
+  @thinkingArg `
   --runtime-context-level "$level" `
   --node-max-old-space-size-mb "$node_heap_mb"
