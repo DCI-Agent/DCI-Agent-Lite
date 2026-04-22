@@ -12,4 +12,4 @@ if (Test-Path (Join-Path $REPO_ROOT ".env")) {
     }
 }
 
-uv run python "$REPO_ROOT.Path/scripts/bcplus_eval/run_bcplus_eval_100.py" --enable-ir --dataset "/home/ubuntu/demo/haoxiang/ir-eval/data/beir/scifact/beir_scifact_sample50.jsonl" --output-root "$REPO_ROOT.Path/outputs/beir/scifact" --corpus-dir "/home/ubuntu/demo/haoxiang/ir-eval/beir_corpus/scifact" --package-dir "$REPO_ROOT.Path/pi-mono/packages/coding-agent" --agent-dir "$REPO_ROOT.Path/pi-mono/.pi/agent" --provider openai --model gpt-5.4-nano --tools read,bash --max-turns 300 --max-concurrency 20 --runtime-context-level level3 --node-max-old-space-size-mb 8192
+uv run python "$REPO_ROOT.Path/scripts/bcplus_eval/run_bcplus_eval_100.py" --enable-ir --dataset "$REPO_ROOT/data/dci-bench/data/beir_scifact/test.jsonl" --output-root "$REPO_ROOT.Path/outputs/beir/scifact" --corpus-dir "/home/ubuntu/demo/haoxiang/ir-eval/beir_corpus/scifact" --package-dir "$REPO_ROOT.Path/pi-mono/packages/coding-agent" --agent-dir "$REPO_ROOT.Path/pi-mono/.pi/agent" --provider openai --model gpt-5.4-nano --tools read,bash --max-turns 300 --max-concurrency 20 --runtime-context-level level3 --node-max-old-space-size-mb 8192

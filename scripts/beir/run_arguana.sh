@@ -21,7 +21,7 @@ REPO_ROOT=$(cd "$SCRIPT_DIR/../.." && pwd)
 
 uv run python "$REPO_ROOT/scripts/bcplus_eval/run_bcplus_eval_100.py" \
   --enable-ir \
-  --dataset "/home/ubuntu/demo/haoxiang/ir-eval/data/beir/arguana/beir_arguana_sample50.jsonl" \
+  --dataset "$REPO_ROOT/data/dci-bench/data/beir_arguana/test.jsonl" \
   --output-root "$REPO_ROOT/outputs/beir/arguana" \
   --corpus-dir "/home/ubuntu/demo/haoxiang/ir-eval/beir_corpus/arguana" \
   --package-dir "$REPO_ROOT/pi-mono/packages/coding-agent" \

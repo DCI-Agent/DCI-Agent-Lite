@@ -21,7 +21,7 @@ REPO_ROOT=$(cd "$SCRIPT_DIR/../.." && pwd)
 
 uv run python "$REPO_ROOT/scripts/bcplus_eval/run_bcplus_eval_100.py" \
   --enable-ir \
-  --dataset /lambda/nfs/demo/GDPval/data/bright/robotics/bright_robotics.jsonl \
+  --dataset $REPO_ROOT/data/dci-bench/data/bright_robotics/bright_robotics.jsonl \
   --output-root "$REPO_ROOT/outputs/bright/robotics" \
   --corpus-dir /lambda/nfs/demo/GDPval/bright_corpus/robotics \
   --package-dir "$REPO_ROOT/pi-mono/packages/coding-agent" \

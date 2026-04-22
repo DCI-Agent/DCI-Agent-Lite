@@ -20,7 +20,7 @@ SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 REPO_ROOT=$(cd "$SCRIPT_DIR/../.." && pwd)
 
 uv run python "$REPO_ROOT/scripts/bcplus_eval/run_bcplus_eval_100.py" \
-  --dataset "$REPO_ROOT/data/musique/musique_dev_sample50.jsonl" \
+  --dataset "$REPO_ROOT/data/dci-bench/data/musique/test.jsonl" \
   --output-root "$REPO_ROOT/outputs/qa/openai_musique_dev_sample50" \
   --corpus-dir "/lambda/nfs/demo/GDPval/wiki_corpus" \
   --package-dir "$REPO_ROOT/pi-mono/packages/coding-agent" \
