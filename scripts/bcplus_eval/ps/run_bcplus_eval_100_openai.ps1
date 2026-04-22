@@ -21,8 +21,6 @@ if ($thinking_level) {
     $output_root = "${output_root}_thinking${thinking_level}"
 }
 
-$thinkingArg = if ($thinking_level) { @("--pi-thinking-level", $thinking_level) } else { @() }
-
 uv run python "$($REPO_ROOT.Path)/scripts/bcplus_eval/run_bcplus_eval_100.py" `
   --dataset "$($REPO_ROOT.Path)/data/bcplus_sampled_100_qa_with_gold_doc.jsonl" `
   --output-root "$output_root" `
@@ -34,6 +32,6 @@ uv run python "$($REPO_ROOT.Path)/scripts/bcplus_eval/run_bcplus_eval_100.py" `
   --tools read,bash `
   --max-turns 100 `
   --max-concurrency "$concurrency" `
-  @thinkingArg `
+  --pi-thinking-level "$thinking_level" `
   --runtime-context-level "$level" `
   --node-max-old-space-size-mb "$node_heap_mb"
