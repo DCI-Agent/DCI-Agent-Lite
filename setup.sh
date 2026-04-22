@@ -58,20 +58,36 @@ else
 fi
 
 # 5. Download datasets from HuggingFace
+
+# 5a. Corpus (DCI-Agent/corpus)
 if [ ! -d "corpus/browsecomp_plus" ]; then
     echo ""
-    echo "==> Downloading datasets from HuggingFace (DCI-Agent/corpus)..."
+    echo "==> Downloading corpus from HuggingFace (DCI-Agent/corpus)..."
     echo "    Note: This dataset is gated. Run 'huggingface-cli login' first if needed."
     uv run python scripts/download_corpus.py || {
         echo ""
-        echo "WARN: Dataset download failed."
+        echo "WARN: Corpus download failed."
         echo "      1. Run 'huggingface-cli login' to authenticate"
         echo "      2. Then re-run: uv run python scripts/download_corpus.py"
     }
 else
     echo ""
-    echo "==> Datasets already present in corpus/, skipping download."
-    echo "    To force re-download, delete corpus/ and re-run this script."
+    echo "==> Corpus already present in corpus/, skipping download."
+fi
+
+# 5b. Benchmark datasets (DCI-Agent/dci-bench)
+if [ ! -d "data/dci-bench" ]; then
+    echo ""
+    echo "==> Downloading benchmark datasets from HuggingFace (DCI-Agent/dci-bench)..."
+    uv run python scripts/download_dci_bench.py || {
+        echo ""
+        echo "WARN: Benchmark dataset download failed."
+        echo "      1. Run 'huggingface-cli login' to authenticate"
+        echo "      2. Then re-run: uv run python scripts/download_dci_bench.py"
+    }
+else
+    echo ""
+    echo "==> Benchmark datasets already present in data/dci-bench/, skipping download."
 fi
 
 # 6. Check API key

@@ -77,8 +77,11 @@ cp .env.template .env
 # edit .env, then re-run setup.sh or source it manually
 
 # 4. Download datasets (auto-downloaded by setup.sh, or run manually)
-#    Datasets from https://huggingface.co/datasets/DCI-Agent/corpus
+#    Corpus: https://huggingface.co/datasets/DCI-Agent/corpus
 uv run python scripts/download_corpus.py
+
+#    Benchmark datasets: https://huggingface.co/datasets/DCI-Agent/dci-bench
+uv run python scripts/download_dci_bench.py
 ```
 
 ---

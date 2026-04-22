@@ -55,22 +55,40 @@ if (-not (Test-Path $PI_CLI)) {
 }
 
 # 5. Download datasets from HuggingFace
+
+# 5a. Corpus (DCI-Agent/corpus)
 if (-not (Test-Path "corpus/browsecomp_plus")) {
     Write-Host ""
-    Write-Host "==> Downloading datasets from HuggingFace (DCI-Agent/corpus)..." -ForegroundColor Cyan
+    Write-Host "==> Downloading corpus from HuggingFace (DCI-Agent/corpus)..." -ForegroundColor Cyan
     Write-Host "    Note: This dataset is gated. Run 'huggingface-cli login' first if needed." -ForegroundColor Cyan
     try {
         uv run python scripts/download_corpus.py
     } catch {
         Write-Host ""
-        Write-Host "WARN: Dataset download failed." -ForegroundColor Yellow
+        Write-Host "WARN: Corpus download failed." -ForegroundColor Yellow
         Write-Host "      1. Run 'huggingface-cli login' to authenticate" -ForegroundColor Yellow
         Write-Host "      2. Then re-run: uv run python scripts/download_corpus.py" -ForegroundColor Yellow
     }
 } else {
     Write-Host ""
-    Write-Host "==> Datasets already present in corpus/, skipping download." -ForegroundColor Green
-    Write-Host "    To force re-download, delete corpus/ and re-run this script." -ForegroundColor Green
+    Write-Host "==> Corpus already present in corpus/, skipping download." -ForegroundColor Green
+}
+
+# 5b. Benchmark datasets (DCI-Agent/dci-bench)
+if (-not (Test-Path "data/dci-bench")) {
+    Write-Host ""
+    Write-Host "==> Downloading benchmark datasets from HuggingFace (DCI-Agent/dci-bench)..." -ForegroundColor Cyan
+    try {
+        uv run python scripts/download_dci_bench.py
+    } catch {
+        Write-Host ""
+        Write-Host "WARN: Benchmark dataset download failed." -ForegroundColor Yellow
+        Write-Host "      1. Run 'huggingface-cli login' to authenticate" -ForegroundColor Yellow
+        Write-Host "      2. Then re-run: uv run python scripts/download_dci_bench.py" -ForegroundColor Yellow
+    }
+} else {
+    Write-Host ""
+    Write-Host "==> Benchmark datasets already present in data/dci-bench/, skipping download." -ForegroundColor Green
 }
 
 # 6. Check API key
