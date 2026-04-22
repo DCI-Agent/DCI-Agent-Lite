@@ -73,7 +73,7 @@ uv run hrci-run-pi-rpc \
   --system-prompt-file "$PWD/prompts/system_prompt.txt" \
   --provider anthropic \
   --model claude-sonnet-4-20250514 \
-  "your question here"
+  "your system prompt"
 ```
 
 ## Runtime Context-Management Levels
@@ -82,15 +82,15 @@ The forked `pi-mono` checkout supports runtime context-management profiles that 
 
 Quick decision rule:
 
-- Use runtime levels for **experiments, ablations, and model-behavior comparisons**
-- Use conversation artifact compaction (see [artifacts.md](artifacts.md)) only when you want smaller saved files
+- Use runtime levels for **experiments, ablations, and model-behavior comparisons** (for artifact-only levels see [artifacts.md](artifacts.md#optimize-levels))
+- Use conversation artifact compaction (see [artifacts.md](artifacts.md#artifact-only-transcript-compaction)) only when you want smaller saved files
 
 ### Through `hrci-run-pi-rpc`
 
 Use `--extra-arg` to forward the runtime profile into Pi:
 
 ```bash
-# level0: current upstream baseline
+# level0: current upstream runtime behavior
 uv run hrci-run-pi-rpc \
   --provider anthropic \
   --model claude-sonnet-4-20250514 \
@@ -98,10 +98,39 @@ uv run hrci-run-pi-rpc \
   "your question here"
 
 # level1: only truncate very large tool results
+uv run hrci-run-pi-rpc \
+  --provider anthropic \
+  --model claude-sonnet-4-20250514 \
+  --extra-arg="--context-management-level level1" \
+  "your question here"
+
 # level2: stricter truncation
+uv run hrci-run-pi-rpc \
+  --provider anthropic \
+  --model claude-sonnet-4-20250514 \
+  --extra-arg="--context-management-level level2" \
+  "your question here"
+
 # level3: truncation + micro-compaction
-# legacy / level4: closest to older pi runtime
+uv run hrci-run-pi-rpc \
+  --provider anthropic \
+  --model claude-sonnet-4-20250514 \
+  --extra-arg="--context-management-level level3" \
+  "your question here"
+
+# legacy / level4: closest to the older pi runtime
+uv run hrci-run-pi-rpc \
+  --provider anthropic \
+  --model claude-sonnet-4-20250514 \
+  --extra-arg="--context-management-level legacy" \
+  "your question here"
+
 # level5: most aggressive runtime profile
+uv run hrci-run-pi-rpc \
+  --provider anthropic \
+  --model claude-sonnet-4-20250514 \
+  --extra-arg="--context-management-level level5" \
+  "your question here"
 ```
 
 Recommended meanings:

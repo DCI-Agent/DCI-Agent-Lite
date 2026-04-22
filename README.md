@@ -77,7 +77,7 @@ cp .env.template .env
 # edit .env, then re-run setup.sh or source it manually
 
 # 4. Download datasets (auto-downloaded by setup.sh, or run manually)
-#    Datasets from https://huggingface.co/datasets/DCI-Agent/corpus (gated, login required)
+#    Datasets from https://huggingface.co/datasets/DCI-Agent/corpus
 uv run python scripts/download_corpus.py
 ```
 
@@ -125,7 +125,7 @@ uv run hrci-run-pi-rpc `
 
 </details>
 
-**Runnable examples** ( Anthropic / OpenAI / vLLM ):
+**Runnable examples** ( Anthropic / OpenAI / vLLM — [setup guide](docs/setup.md#5-optional-configure-a-local-vllm-provider)):
 
 ```bash
 bash scripts/examples/hrci_basic_anthropic_example.sh
@@ -153,11 +153,11 @@ bash scripts/examples/hrci_basic_vllm_example.sh
 
 | Task | Command | Docs |
 |------|---------|------|
-| Basic run | `uv run hrci-run-pi-rpc --provider anthropic --model ... "question"` | [`docs/running.md`](docs/running.md) |
-| Resume run | `uv run hrci-run-pi-rpc --resume ...` | [`docs/running.md`](docs/running.md/) |
-| Override system prompt | `uv run hrci-run-pi-rpc --system-prompt-file prompts/system_prompt.txt ...` | [`docs/running.md`](docs/running.md) |
-| Runtime context ablation | `--extra-arg="--context-management-level level5"` | [`docs/running.md`](docs/running.md) |
-| Transcript compaction | `--conversation-clear-tool-results --conversation-externalize-tool-results` | [`docs/artifacts.md`](docs/artifacts.md) |
+| Basic run | `uv run hrci-run-pi-rpc --provider anthropic --model ... "question"` | [`docs/running.md`](docs/running.md#basic-example) |
+| Resume run | `uv run hrci-run-pi-rpc --resume ...` | [`docs/running.md`](docs/running.md#resume-a-run) |
+| Override system prompt | `uv run hrci-run-pi-rpc --system-prompt-file prompts/system_prompt.txt ...` | [`docs/running.md`](docs/running.md#override-system-prompt) |
+| Runtime context ablation | `--extra-arg="--context-management-level level5"` | [`docs/running.md`](docs/running.md#runtime-context-management-levels) |
+| Transcript compaction | `--conversation-clear-tool-results --conversation-externalize-tool-results` | [`docs/artifacts.md`](docs/artifacts.md#artifact-only-transcript-compaction) |
 
 ### Direct Pi (Node CLI)
 
@@ -205,6 +205,22 @@ bash scripts/bcplus_eval/run_bcplus_eval_100_vllm.sh
 ```
 
 Runtime-context-level variants: `scripts/bcplus_eval/run_level{0,1,3}.sh`
+
+<details>
+<summary>Windows PowerShell (click to expand)</summary>
+
+```powershell
+# Anthropic
+.\scripts\bcplus_eval\run_bcplus_eval_100_anthropic.ps1
+
+# OpenAI
+.\scripts\bcplus_eval\run_bcplus_eval_100_openai.ps1
+
+# vLLM
+.\scripts\bcplus_eval\run_bcplus_eval_100_vllm.ps1
+```
+
+</details>
 
 See [`docs/benchmark.md`](docs/benchmark.md) for parameters and prompt references.
 
