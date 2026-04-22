@@ -118,6 +118,24 @@ export PI_CODING_AGENT_DIR=$PWD/pi-mono/.pi/agent
 }
 ```
 
+**Important:** vLLM must be started with tool-calling support enabled. The server requires `--enable-auto-tool-choice` and `--tool-call-parser`:
+
+```bash
+# For Qwen-based models (e.g., Qwen2.5-Coder)
+python -m vllm.entrypoints.openai.api_server \
+  --model Qwen/Qwen2.5-Coder-32B-Instruct \
+  --enable-auto-tool-choice \
+  --tool-call-parser hermes
+
+# For Llama 3.x models
+python -m vllm.entrypoints.openai.api_server \
+  --model meta-llama/Meta-Llama-3.1-8B-Instruct \
+  --enable-auto-tool-choice \
+  --tool-call-parser llama3_json
+```
+
+If these flags are missing, Pi will fail with a `400 status code (no body)` error because the default `tool_choice: "auto"` is rejected.
+
 If your local server ignores auth:
 
 ```bash

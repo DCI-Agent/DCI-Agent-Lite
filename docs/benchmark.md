@@ -17,6 +17,22 @@ bash scripts/bcplus_eval/run_bcplus_eval_100_openai.sh
 bash scripts/bcplus_eval/run_bcplus_eval_100_vllm.sh
 ```
 
+<details>
+<summary>Windows PowerShell</summary>
+
+```powershell
+# Anthropic
+.\scripts\bcplus_eval\ps\run_bcplus_eval_100_anthropic.ps1
+
+# OpenAI
+.\scripts\bcplus_eval\ps\run_bcplus_eval_100_openai.ps1
+
+# vLLM
+.\scripts\bcplus_eval\ps\run_bcplus_eval_100_vllm.ps1
+```
+
+</details>
+
 ### Runtime-context-level evals
 
 ```bash

@@ -166,7 +166,6 @@ PI_CODING_AGENT_DIR="$PWD/pi-mono/.pi/agent" \
 node "$PWD/pi-mono/packages/coding-agent/dist/cli.js" \
   --model claude-sonnet-4-20250514 \
   --tools read,bash \
-  --max-turns 6 \
   -p "your question here"
 ```
 
@@ -178,7 +177,6 @@ $env:PI_CODING_AGENT_DIR = "$PWD\pi-mono\.pi\agent"
 node "$PWD\pi-mono\packages\coding-agent\dist\cli.js" `
   --model claude-sonnet-4-20250514 `
   --tools read,bash `
-  --max-turns 6 `
   -p "your question here"
 ```
 
@@ -211,13 +209,13 @@ Runtime-context-level variants: `scripts/bcplus_eval/run_level{0,1,3}.sh`
 
 ```powershell
 # Anthropic
-.\scripts\bcplus_eval\run_bcplus_eval_100_anthropic.ps1
+.\scripts\bcplus_eval\ps\run_bcplus_eval_100_anthropic.ps1
 
 # OpenAI
-.\scripts\bcplus_eval\run_bcplus_eval_100_openai.ps1
+.\scripts\bcplus_eval\ps\run_bcplus_eval_100_openai.ps1
 
 # vLLM
-.\scripts\bcplus_eval\run_bcplus_eval_100_vllm.ps1
+.\scripts\bcplus_eval\ps\run_bcplus_eval_100_vllm.ps1
 ```
 
 </details>
