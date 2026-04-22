@@ -1,0 +1,88 @@
+# HRCI One-Click Setup (Windows PowerShell)
+# Usage: .\setup.ps1
+
+Write-Host "==> Setting up HRCI environment..." -ForegroundColor Cyan
+
+# Load .env if present
+if (Test-Path ".env") {
+    Write-Host "==> Loading .env..." -ForegroundColor Cyan
+    Get-Content ".env" | ForEach-Object {
+        if ($_ -match '^\s*([^#][^=]+)=(.*)$') {
+            [System.Environment]::SetEnvironmentVariable($matches[1].Trim(), $matches[2].Trim(), "Process")
+        }
+    }
+}
+
+# 1. Install uv if missing
+if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
+    Write-Host "==> Installing uv..." -ForegroundColor Cyan
+    powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","User") + ";" + [System.Environment]::GetEnvironmentVariable("Path","Machine")
+}
+
+# 2. Install ripgrep if missing
+if (-not (Get-Command rg -ErrorAction SilentlyContinue)) {
+    Write-Host "==> Installing ripgrep..." -ForegroundColor Cyan
+    if (Get-Command winget -ErrorAction SilentlyContinue) {
+        winget install BurntSushi.ripgrep.MSVC
+    } elseif (Get-Command choco -ErrorAction SilentlyContinue) {
+        choco install ripgrep
+    } else {
+        Write-Host "WARN: Could not auto-install ripgrep. Please install manually: https://github.com/BurntSushi/ripgrep#installation" -ForegroundColor Yellow
+    }
+}
+
+# 3. Sync Python environment
+Write-Host "==> Syncing Python dependencies..." -ForegroundColor Cyan
+uv sync
+
+# 4. Clone and build Pi monorepo if not present
+$PI_CLI = "pi-mono/packages/coding-agent/dist/cli.js"
+if (-not (Test-Path $PI_CLI)) {
+    if (-not (Test-Path "pi-mono")) {
+        Write-Host "==> Cloning pi-mono..." -ForegroundColor Cyan
+        git clone https://github.com/jdf-prog/pi-mono.git pi-mono
+    }
+    Set-Location pi-mono
+    git checkout codex/context-management-ablation
+    Write-Host "==> Installing Pi dependencies (npm install)..." -ForegroundColor Cyan
+    npm install
+    Write-Host "==> Building Pi (npm run build)..." -ForegroundColor Cyan
+    npm run build
+    Set-Location ..
+} else {
+    Write-Host "==> Pi CLI already built, skipping." -ForegroundColor Green
+}
+
+# 5. Download datasets from HuggingFace
+if (-not (Test-Path "corpus/browsecomp_plus")) {
+    Write-Host ""
+    Write-Host "==> Downloading datasets from HuggingFace (DCI-Agent/corpus)..." -ForegroundColor Cyan
+    Write-Host "    Note: This dataset is gated. Run 'huggingface-cli login' first if needed." -ForegroundColor Cyan
+    try {
+        uv run python scripts/download_corpus.py
+    } catch {
+        Write-Host ""
+        Write-Host "WARN: Dataset download failed." -ForegroundColor Yellow
+        Write-Host "      1. Run 'huggingface-cli login' to authenticate" -ForegroundColor Yellow
+        Write-Host "      2. Then re-run: uv run python scripts/download_corpus.py" -ForegroundColor Yellow
+    }
+} else {
+    Write-Host ""
+    Write-Host "==> Datasets already present in corpus/, skipping download." -ForegroundColor Green
+    Write-Host "    To force re-download, delete corpus/ and re-run this script." -ForegroundColor Green
+}
+
+# 6. Check API key
+if (-not $env:ANTHROPIC_API_KEY -and -not $env:OPENAI_API_KEY) {
+    Write-Host ""
+    Write-Host "WARN: No ANTHROPIC_API_KEY or OPENAI_API_KEY detected in environment." -ForegroundColor Yellow
+    Write-Host "      Please set one before running experiments:" -ForegroundColor Yellow
+    Write-Host "      cp .env.template .env  # then edit .env" -ForegroundColor Yellow
+}
+
+Write-Host ""
+Write-Host "==> Setup complete!" -ForegroundColor Green
+Write-Host "    Next steps:" -ForegroundColor Green
+Write-Host "    1. Set your API key(s): cp .env.template .env" -ForegroundColor Green
+Write-Host "    2. Run a test:          .\scripts\examples\ps\hrci_basic_anthropic_example.ps1" -ForegroundColor Green
