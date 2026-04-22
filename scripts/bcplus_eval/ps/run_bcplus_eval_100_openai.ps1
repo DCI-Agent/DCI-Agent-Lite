@@ -32,6 +32,6 @@ uv run python "$($REPO_ROOT.Path)/scripts/bcplus_eval/run_bcplus_eval_100.py" `
   --tools read,bash `
   --max-turns 100 `
   --max-concurrency "$concurrency" `
-  --pi-thinking-level "$thinking_level" `
+  --pi-thinking-level="$thinking_level" `
   --runtime-context-level "$level" `
   --node-max-old-space-size-mb "$node_heap_mb"
