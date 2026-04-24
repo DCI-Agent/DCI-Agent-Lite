@@ -219,3 +219,5 @@ __marimo__/
 /logs*
 .claude/
 .claudeignore
+.codex/
+.codexignore
