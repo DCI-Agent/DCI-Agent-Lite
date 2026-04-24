@@ -133,6 +133,12 @@ uv run hrci-run-pi-rpc \
   "your question here"
 ```
 
+Runnable example for all levels: `scripts/examples/hrci_runtime_context_example.sh`
+
+```bash
+bash scripts/examples/hrci_runtime_context_example.sh level3
+```
+
 Recommended meanings:
 
 | Level | Behavior |

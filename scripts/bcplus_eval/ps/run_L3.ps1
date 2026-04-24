@@ -12,26 +12,17 @@ if (Test-Path (Join-Path $REPO_ROOT ".env")) {
     }
 }
 
-$level = if ($args[0]) { $args[0] } else { "level5" }
-$concurrency = "10"
-$node_heap_mb = "8192"
-$thinking_level = if ($args[1]) { $args[1] } else { "" }
-$output_root = "$($REPO_ROOT.Path)/outputs/bcplus_eval_100/openai_${level}_concurrency${concurrency}"
-if ($thinking_level) {
-    $output_root = "${output_root}_thinking${thinking_level}"
-}
-
-uv run python "$($REPO_ROOT.Path)/scripts/bcplus_eval/run_bcplus_eval_100.py" `
-  --dataset "$($REPO_ROOT.Path)/data/bcplus_sampled_100_qa_with_gold_doc.jsonl" `
-  --output-root "$output_root" `
+uv run python "$($REPO_ROOT.Path)/scripts/bcplus_eval/run_bcplus_eval.py" `
+  --dataset "$($REPO_ROOT.Path)/data/bcplus_qa.jsonl" `
+  --output-root "$($REPO_ROOT.Path)/outputs/bcplus_eval/openai_L3" `
   --corpus-dir "$($REPO_ROOT.Path)/corpus/bc_plus_docs" `
   --package-dir "$($REPO_ROOT.Path)/pi-mono/packages/coding-agent" `
   --agent-dir "$($REPO_ROOT.Path)/pi-mono/.pi/agent" `
   --provider openai `
   --model gpt-5.4-nano `
   --tools read,bash `
-  --max-turns 100 `
-  --max-concurrency "$concurrency" `
-  --pi-thinking-level="$thinking_level" `
-  --runtime-context-level "$level" `
-  --node-max-old-space-size-mb "$node_heap_mb"
+  --max-turns 300 `
+  --max-concurrency 10 `
+  --runtime-context-level level3 `
+  --pi-thinking-level high `
+  --node-max-old-space-size-mb 8192

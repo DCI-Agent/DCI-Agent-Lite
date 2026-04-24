@@ -26,8 +26,8 @@ sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from hrci.benchmark.pi_rpc_runner import judge_answer_sync
 
-DEFAULT_DATASET_PATH = REPO_ROOT / "data" / "bcplus_sampled_100_qa_with_gold_doc.jsonl"
-DEFAULT_OUTPUT_ROOT = REPO_ROOT / "outputs" / "bcplus_eval_100"
+DEFAULT_DATASET_PATH = REPO_ROOT / "data" / "bcplus_qa.jsonl"
+DEFAULT_OUTPUT_ROOT = REPO_ROOT / "outputs" / "bcplus_eval"
 DEFAULT_CORPUS_DIR = REPO_ROOT / "corpus" / "bc_plus_docs"
 DEFAULT_PACKAGE_DIR = REPO_ROOT / "pi-mono" / "packages" / "coding-agent"
 DEFAULT_AGENT_DIR = REPO_ROOT / "pi-mono" / ".pi" / "agent"
@@ -55,7 +55,7 @@ def utc_now() -> str:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Run the fixed 100-question BrowseComp-Plus eval set with hrci-run-pi-rpc, "
+            "Run the BrowseComp-Plus eval set with hrci-run-pi-rpc, "
             "grade each final answer with OpenAI, and write per-question plus aggregate metrics."
         )
     )

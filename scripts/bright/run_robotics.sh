@@ -19,7 +19,7 @@ set -euo pipefail
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 REPO_ROOT=$(cd "$SCRIPT_DIR/../.." && pwd)
 
-uv run python "$REPO_ROOT/scripts/bcplus_eval/run_bcplus_eval_100.py" \
+uv run python "$REPO_ROOT/scripts/bcplus_eval/run_bcplus_eval.py" \
   --enable-ir \
   --dataset $REPO_ROOT/data/dci-bench/data/bright_robotics/bright_robotics.jsonl \
   --output-root "$REPO_ROOT/outputs/bright/robotics" \

@@ -90,6 +90,20 @@ else
     echo "==> Benchmark datasets already present in data/dci-bench/, skipping download."
 fi
 
+# 5c. Extract BrowseComp-Plus QA from parquet to JSONL
+if [ ! -f "data/bcplus_qa.jsonl" ]; then
+    echo ""
+    echo "==> Extracting BrowseComp-Plus QA pairs to data/bcplus_qa.jsonl..."
+    uv run python scripts/bcplus_eval/extract_bcplus_qa.py || {
+        echo ""
+        echo "WARN: QA extraction failed."
+        echo "      Make sure data/dci-bench/data/browsecomp-plus/ exists with parquet files."
+    }
+else
+    echo ""
+    echo "==> data/bcplus_qa.jsonl already present, skipping extraction."
+fi
+
 # 6. Check API key
 if [ -z "${ANTHROPIC_API_KEY:-}" ] && [ -z "${OPENAI_API_KEY:-}" ]; then
     echo ""

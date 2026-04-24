@@ -19,7 +19,7 @@
 
 - 🔍 **BrowseComp-Plus Corpus Search** — Export parquet shards into domain-first text folders for local agentic retrieval.
 - 🤖 **Pi RPC Runner** — Python wrapper around the Pi CLI with real-time event logging, resume support, and artifact compaction.
-- 🧪 **A/B Evaluation Scripts** — Fixed 100-question BCPlus eval with provider-specific launchers (Anthropic, OpenAI, vLLM).
+- 🧪 **A/B Evaluation Scripts** — BrowseComp-Plus eval with provider-specific launchers (Anthropic, OpenAI).
 - 📊 **Analysis Toolkit** — Log parsers and figure generators for tool usage, bash commands, and metrics matrices.
 - ⚙️ **Context Management Ablations** — Runtime levels (`level0`–`level5`) and artifact-only transcript compaction for controlled experiments.
 
@@ -167,7 +167,7 @@ bash scripts/examples/hrci_basic_vllm_example.sh
 ```bash
 PI_CODING_AGENT_DIR="$PWD/pi-mono/.pi/agent" \
 node "$PWD/pi-mono/packages/coding-agent/dist/cli.js" \
-  --model claude-sonnet-4-20250514 \
+  --model gpt-5.4-nano \
   --tools read,bash \
   -p "your question here"
 ```
@@ -178,7 +178,7 @@ node "$PWD/pi-mono/packages/coding-agent/dist/cli.js" \
 ```powershell
 $env:PI_CODING_AGENT_DIR = "$PWD\pi-mono\.pi\agent"
 node "$PWD\pi-mono\packages\coding-agent\dist\cli.js" `
-  --model claude-sonnet-4-20250514 `
+  --model gpt-5.4-nano `
   --tools read,bash `
   -p "your question here"
 ```
@@ -192,33 +192,30 @@ Direct examples: `scripts/examples/pi_direct_*`
 <a name="benchmark-evaluation"></a>
 ## 🎯 Benchmark Evaluation
 
-Run the fixed 100-question BCPlus evaluator:
+Run the BCPlus evaluator:
 
 ```bash
-# Anthropic
-bash scripts/bcplus_eval/run_bcplus_eval_100_anthropic.sh
+# Anthropic (default provider)
+uv run python scripts/bcplus_eval/run_bcplus_eval.py
 
 # OpenAI
-bash scripts/bcplus_eval/run_bcplus_eval_100_openai.sh
+bash scripts/bcplus_eval/run_bcplus_eval_openai.sh
 
-# vLLM
-bash scripts/bcplus_eval/run_bcplus_eval_100_vllm.sh
+# OpenAI with custom runtime level
+bash scripts/bcplus_eval/run_bcplus_eval_openai.sh level1
 ```
 
-Runtime-context-level variants: `scripts/bcplus_eval/run_level{0,1,3}.sh`
+Fixed runtime-context-level variant: `scripts/bcplus_eval/run_L3.sh` (level3)
 
 <details>
 <summary>Windows PowerShell (click to expand)</summary>
 
 ```powershell
-# Anthropic
-.\scripts\bcplus_eval\ps\run_bcplus_eval_100_anthropic.ps1
-
 # OpenAI
-.\scripts\bcplus_eval\ps\run_bcplus_eval_100_openai.ps1
+.\scripts\bcplus_eval\ps\run_bcplus_eval_openai.ps1
 
-# vLLM
-.\scripts\bcplus_eval\ps\run_bcplus_eval_100_vllm.ps1
+# Fixed level3
+.\scripts\bcplus_eval\ps\run_L3.ps1
 ```
 
 </details>
@@ -272,7 +269,7 @@ HRCI/
 |   |-- bright/                      # BRIGHT benchmark scripts
 |   `-- qa/                          # QA benchmark scripts
 |-- data/
-|   `-- bcplus_sampled_100_qa.jsonl
+|   `-- dci-bench/                   # Benchmark datasets (auto-downloaded)
 |-- prompts/
 |   `-- system_prompt.txt
 |-- setup.sh                         # One-click setup (Unix/macOS)

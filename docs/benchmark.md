@@ -1,34 +1,31 @@
 # Benchmark Evaluation
 
-## BrowseComp-Plus 100-Question Eval
+## BrowseComp-Plus Eval
 
-The fixed 100-question evaluator is `scripts/bcplus_eval/run_bcplus_eval_100.py`.
+The evaluator is `scripts/bcplus_eval/run_bcplus_eval.py`.
 
 Provider-specific launchers:
 
 ```bash
-# Anthropic
-bash scripts/bcplus_eval/run_bcplus_eval_100_anthropic.sh
+# Anthropic (default provider)
+uv run python scripts/bcplus_eval/run_bcplus_eval.py
 
 # OpenAI
-bash scripts/bcplus_eval/run_bcplus_eval_100_openai.sh
+bash scripts/bcplus_eval/run_bcplus_eval_openai.sh
 
-# vLLM
-bash scripts/bcplus_eval/run_bcplus_eval_100_vllm.sh
+# OpenAI with custom runtime level
+bash scripts/bcplus_eval/run_bcplus_eval_openai.sh level1
 ```
 
 <details>
 <summary>Windows PowerShell</summary>
 
 ```powershell
-# Anthropic
-.\scripts\bcplus_eval\ps\run_bcplus_eval_100_anthropic.ps1
-
 # OpenAI
-.\scripts\bcplus_eval\ps\run_bcplus_eval_100_openai.ps1
+.\scripts\bcplus_eval\ps\run_bcplus_eval_openai.ps1
 
-# vLLM
-.\scripts\bcplus_eval\ps\run_bcplus_eval_100_vllm.ps1
+# Fixed level3
+.\scripts\bcplus_eval\ps\run_L3.ps1
 ```
 
 </details>
@@ -36,9 +33,12 @@ bash scripts/bcplus_eval/run_bcplus_eval_100_vllm.sh
 ### Runtime-context-level evals
 
 ```bash
-bash scripts/bcplus_eval/run_level0.sh   # level0
-bash scripts/bcplus_eval/run_level1.sh   # level1
-bash scripts/bcplus_eval/run_level3.sh   # level3
+bash scripts/bcplus_eval/run_bcplus_eval_openai.sh level0   # level0
+bash scripts/bcplus_eval/run_bcplus_eval_openai.sh level1   # level1
+bash scripts/bcplus_eval/run_bcplus_eval_openai.sh level3   # level3
+
+# Fixed level3 (non-parameterized)
+bash scripts/bcplus_eval/run_L3.sh
 ```
 
 ### Parameters
@@ -47,15 +47,15 @@ Common parameters used in the eval scripts:
 
 | Parameter | Typical Value | Description |
 |-----------|--------------|-------------|
-| `--dataset` | `data/bcplus_sampled_100_qa.jsonl` | QA dataset |
-| `--output-root` | `outputs/bcplus_eval_100/...` | Results directory |
+| `--dataset` | `data/bcplus_qa.jsonl` | QA dataset |
+| `--output-root` | `outputs/bcplus_eval/...` | Results directory |
 | `--corpus-dir` | `corpus/bc_plus_docs` | Exported corpus |
-| `--provider` | `anthropic` / `openai` / `vllm` | LLM provider |
+| `--provider` | `anthropic` / `openai` | LLM provider |
 | `--model` | `claude-sonnet-4-20250514` | Model identifier |
 | `--tools` | `read,bash` | Enabled tools |
 | `--max-turns` | `100` | Max conversation turns |
 | `--max-concurrency` | `1` | Concurrent runs |
-| `--runtime-context-level` | `level5` | Context management level |
+| `--runtime-context-level` | `level3` | Context management level |
 | `--node-max-old-space-size-mb` | `8192` | Node heap size |
 | `--limit` | `10` | Limit to first N questions (optional) |
 

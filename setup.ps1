@@ -91,6 +91,22 @@ if (-not (Test-Path "data/dci-bench")) {
     Write-Host "==> Benchmark datasets already present in data/dci-bench/, skipping download." -ForegroundColor Green
 }
 
+# 5c. Extract BrowseComp-Plus QA from parquet to JSONL
+if (-not (Test-Path "data/bcplus_qa.jsonl")) {
+    Write-Host ""
+    Write-Host "==> Extracting BrowseComp-Plus QA pairs to data/bcplus_qa.jsonl..." -ForegroundColor Cyan
+    try {
+        uv run python scripts/bcplus_eval/extract_bcplus_qa.py
+    } catch {
+        Write-Host ""
+        Write-Host "WARN: QA extraction failed." -ForegroundColor Yellow
+        Write-Host "      Make sure data/dci-bench/data/browsecomp-plus/ exists with parquet files." -ForegroundColor Yellow
+    }
+} else {
+    Write-Host ""
+    Write-Host "==> data/bcplus_qa.jsonl already present, skipping extraction." -ForegroundColor Green
+}
+
 # 6. Check API key
 if (-not $env:ANTHROPIC_API_KEY -and -not $env:OPENAI_API_KEY) {
     Write-Host ""
