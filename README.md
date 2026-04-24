@@ -15,6 +15,17 @@
 
 ---
 
+## Prerequisites
+
+| Tool | Recommended version | Notes |
+|------|-------------------|-------|
+| **Node / npm** | Node >= 20, npm >= 10 | `setup.sh` auto-installs via nvm if Node < 20 |
+| **Python** | >= 3.10 | managed by [uv](https://github.com/astral-sh/uv) |
+| **Linux bash** | bash >= 5 (Ubuntu 20.04+) | `setup.sh` is the recommended entry point |
+| **Windows PowerShell** | PowerShell 7+ (pwsh) | run steps from `setup.sh` manually; WSL2 is the simpler path |
+
+---
+
 ## 🌟 Key Features
 
 - 🔍 **BrowseComp-Plus Corpus Search** — Export parquet shards into domain-first text folders for local agentic retrieval.

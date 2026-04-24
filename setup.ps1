@@ -36,6 +36,35 @@ if (-not (Get-Command rg -ErrorAction SilentlyContinue)) {
 Write-Host "==> Syncing Python dependencies..." -ForegroundColor Cyan
 uv sync
 
+# 3b. Ensure Node >= 20 (pi-mono requires node >=20.0.0)
+$nodeMajor = 0
+if (Get-Command node -ErrorAction SilentlyContinue) {
+    $nodeMajor = [int]((node --version) -replace 'v(\d+).*','$1')
+}
+if ($nodeMajor -lt 20) {
+    Write-Host "==> Node $nodeMajor < 20 detected. Installing Node 20 via nvm-windows..." -ForegroundColor Cyan
+    if (Get-Command nvm -ErrorAction SilentlyContinue) {
+        nvm install 20
+        nvm use 20
+    } elseif (Get-Command winget -ErrorAction SilentlyContinue) {
+        Write-Host "==> Installing nvm-windows via winget..." -ForegroundColor Cyan
+        winget install CoreyButler.NVMforWindows --silent
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+        nvm install 20
+        nvm use 20
+    } else {
+        Write-Host "WARN: nvm-windows not found and winget unavailable." -ForegroundColor Yellow
+        Write-Host "      Please install Node 20 manually: https://nodejs.org/en/download" -ForegroundColor Yellow
+    }
+    # Explicitly prepend Node 20 bin to PATH so all subsequent subprocesses use it
+    $node20Path = (nvm which 20 2>$null)
+    if ($node20Path) {
+        $node20Bin = Split-Path $node20Path -Parent
+        $env:Path = "$node20Bin;$env:Path"
+    }
+    Write-Host "==> Now using Node $(node --version)" -ForegroundColor Green
+}
+
 # 4. Clone and build Pi monorepo if not present
 $PI_CLI = "pi-mono/packages/coding-agent/dist/cli.js"
 if (-not (Test-Path $PI_CLI)) {
@@ -47,8 +76,11 @@ if (-not (Test-Path $PI_CLI)) {
     git checkout codex/context-management-ablation
     Write-Host "==> Installing Pi dependencies (npm install)..." -ForegroundColor Cyan
     npm install
-    Write-Host "==> Building Pi (npm run build)..." -ForegroundColor Cyan
-    npm run build
+    Write-Host "==> Building Pi (coding-agent and its deps only)..." -ForegroundColor Cyan
+    Set-Location packages/tui;  npm run build; Set-Location ../..
+    Set-Location packages/ai;   npm run build; Set-Location ../..
+    Set-Location packages/agent; npm run build; Set-Location ../..
+    Set-Location packages/coding-agent; npm run build; Set-Location ../..
     Set-Location ..
 } else {
     Write-Host "==> Pi CLI already built, skipping." -ForegroundColor Green

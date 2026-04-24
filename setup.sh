@@ -39,6 +39,33 @@ fi
 echo "==> Syncing Python dependencies..."
 uv sync
 
+# 3b. Ensure Node >= 20 (pi-mono requires node >=20.0.0)
+_node_major() { node --version 2>/dev/null | sed 's/v\([0-9]*\).*/\1/'; }
+if [ "$(_node_major)" -lt 20 ] 2>/dev/null; then
+    echo "==> Node $(_node_major) < 20 detected. Installing Node 20 via nvm..."
+    # Load nvm if available
+    NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+    # shellcheck disable=SC1091
+    [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
+    if command -v nvm &>/dev/null; then
+        nvm install 20
+        nvm use 20
+    else
+        echo "==> nvm not found. Installing nvm then Node 20..."
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+        # shellcheck disable=SC1091
+        source "$NVM_DIR/nvm.sh"
+        nvm install 20
+        nvm use 20
+    fi
+    # Explicitly prepend Node 20 bin to PATH so all subsequent subprocesses use it
+    _node20_bin="$(nvm which 20 2>/dev/null | xargs dirname)"
+    if [ -n "$_node20_bin" ]; then
+        export PATH="$_node20_bin:$PATH"
+    fi
+    echo "==> Now using Node $(node --version)"
+fi
+
 # 4. Clone and build Pi monorepo if CLI is not present
 PI_CLI="pi-mono/packages/coding-agent/dist/cli.js"
 if [ ! -f "$PI_CLI" ]; then
@@ -50,8 +77,11 @@ if [ ! -f "$PI_CLI" ]; then
     git checkout codex/context-management-ablation
     echo "==> Installing Pi dependencies (npm install)..."
     npm install
-    echo "==> Building Pi (npm run build)..."
-    npm run build
+    echo "==> Building Pi (coding-agent and its deps only)..."
+    (cd packages/tui && npm run build)
+    (cd packages/ai && npm run build)
+    (cd packages/agent && npm run build)
+    (cd packages/coding-agent && npm run build)
     cd ..
 else
     echo "==> Pi CLI already built, skipping."
