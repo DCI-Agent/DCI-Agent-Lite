@@ -192,7 +192,53 @@ Direct examples: `scripts/examples/pi_direct_*`
 <a name="benchmark-evaluation"></a>
 ## 🎯 Benchmark Evaluation
 
-Run the BCPlus evaluator:
+### Knowledge-Intensive QA
+
+```bash
+bash scripts/qa/run_hotpotqa_dev_sample50.sh
+bash scripts/qa/run_musique_dev_sample50.sh
+bash scripts/qa/run_nq_test_sample50.sh
+```
+
+<details>
+<summary>Windows PowerShell</summary>
+
+```powershell
+.\scripts\qa\ps\run_hotpotqa_dev_sample50.ps1
+.\scripts\qa\ps\run_musique_dev_sample50.ps1
+.\scripts\qa\ps\run_nq_test_sample50.ps1
+```
+
+</details>
+
+### IR Ranking
+
+```bash
+# BEIR
+bash scripts/beir/run_arguana.sh
+bash scripts/beir/run_scifact.sh
+
+# BRIGHT
+bash scripts/bright/run_bio.sh
+bash scripts/bright/run_robotics.sh
+```
+
+<details>
+<summary>Windows PowerShell</summary>
+
+```powershell
+# BEIR
+.\scripts\beir\ps\run_arguana.ps1
+.\scripts\beir\ps\run_scifact.ps1
+
+# BRIGHT
+.\scripts\bright\ps\run_bio.ps1
+.\scripts\bright\ps\run_robotics.ps1
+```
+
+</details>
+
+### Agentic Search (BrowseComp-Plus)
 
 ```bash
 # Anthropic (default provider)
@@ -203,12 +249,13 @@ bash scripts/bcplus_eval/run_bcplus_eval_openai.sh
 
 # OpenAI with custom runtime level
 bash scripts/bcplus_eval/run_bcplus_eval_openai.sh level1
+
+# Fixed level3
+bash scripts/bcplus_eval/run_L3.sh
 ```
 
-Fixed runtime-context-level variant: `scripts/bcplus_eval/run_L3.sh` (level3)
-
 <details>
-<summary>Windows PowerShell (click to expand)</summary>
+<summary>Windows PowerShell</summary>
 
 ```powershell
 # OpenAI
