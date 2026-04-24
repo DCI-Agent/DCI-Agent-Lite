@@ -23,7 +23,7 @@ uv run python "$REPO_ROOT/scripts/bcplus_eval/run_bcplus_eval.py" \
   --enable-ir \
   --dataset "$REPO_ROOT/data/dci-bench/data/beir_arguana/test.jsonl" \
   --output-root "$REPO_ROOT/outputs/beir/arguana" \
-  --corpus-dir "/home/ubuntu/demo/haoxiang/ir-eval/beir_corpus/arguana" \
+  --corpus-dir "$REPO_ROOT/corpus/beir_corpus/arguana" \
   --package-dir "$REPO_ROOT/pi-mono/packages/coding-agent" \
   --agent-dir "$REPO_ROOT/pi-mono/.pi/agent" \
   --provider openai \

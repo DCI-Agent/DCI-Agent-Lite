@@ -16,7 +16,7 @@ uv run python "$($REPO_ROOT.Path)/scripts/bcplus_eval/run_bcplus_eval.py" `
   --enable-ir `
   --dataset "$($REPO_ROOT.Path)/data/dci-bench/data/beir_scifact/test.jsonl" `
   --output-root "$($REPO_ROOT.Path)/outputs/beir/scifact" `
-  --corpus-dir "/home/ubuntu/demo/haoxiang/ir-eval/beir_corpus/scifact" `
+  --corpus-dir "$($REPO_ROOT.Path)/corpus/beir_corpus/scifact" `
   --package-dir "$($REPO_ROOT.Path)/pi-mono/packages/coding-agent" `
   --agent-dir "$($REPO_ROOT.Path)/pi-mono/.pi/agent" `
   --provider openai `

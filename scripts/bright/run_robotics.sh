@@ -23,7 +23,7 @@ uv run python "$REPO_ROOT/scripts/bcplus_eval/run_bcplus_eval.py" \
   --enable-ir \
   --dataset $REPO_ROOT/data/dci-bench/data/bright_robotics/bright_robotics.jsonl \
   --output-root "$REPO_ROOT/outputs/bright/robotics" \
-  --corpus-dir /lambda/nfs/demo/GDPval/bright_corpus/robotics \
+  --corpus-dir "$REPO_ROOT/corpus/bright_corpus/robotics" \
   --package-dir "$REPO_ROOT/pi-mono/packages/coding-agent" \
   --agent-dir "$REPO_ROOT/pi-mono/.pi/agent" \
   --provider openai \

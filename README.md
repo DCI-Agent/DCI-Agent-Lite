@@ -198,6 +198,9 @@ Direct examples: `scripts/examples/pi_direct_*`
 bash scripts/qa/run_hotpotqa_dev_sample50.sh
 bash scripts/qa/run_musique_dev_sample50.sh
 bash scripts/qa/run_nq_test_sample50.sh
+bash scripts/qa/run_triviaqa_test_sample50.sh
+bash scripts/qa/run_2wikimultihopqa_dev_sample50.sh
+bash scripts/qa/run_bamboogle_test_sample50.sh
 ```
 
 <details>
@@ -207,6 +210,9 @@ bash scripts/qa/run_nq_test_sample50.sh
 .\scripts\qa\ps\run_hotpotqa_dev_sample50.ps1
 .\scripts\qa\ps\run_musique_dev_sample50.ps1
 .\scripts\qa\ps\run_nq_test_sample50.ps1
+.\scripts\qa\ps\run_triviaqa_test_sample50.ps1
+.\scripts\qa\ps\run_2wikimultihopqa_dev_sample50.ps1
+.\scripts\qa\ps\run_bamboogle_test_sample50.ps1
 ```
 
 </details>
@@ -220,6 +226,8 @@ bash scripts/beir/run_scifact.sh
 
 # BRIGHT
 bash scripts/bright/run_bio.sh
+bash scripts/bright/run_earth_science.sh
+bash scripts/bright/run_economics.sh
 bash scripts/bright/run_robotics.sh
 ```
 
@@ -233,6 +241,8 @@ bash scripts/bright/run_robotics.sh
 
 # BRIGHT
 .\scripts\bright\ps\run_bio.ps1
+.\scripts\bright\ps\run_earth_science.ps1
+.\scripts\bright\ps\run_economics.ps1
 .\scripts\bright\ps\run_robotics.ps1
 ```
 

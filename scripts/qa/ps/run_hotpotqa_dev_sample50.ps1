@@ -15,7 +15,7 @@ if (Test-Path (Join-Path $REPO_ROOT ".env")) {
 uv run python "$($REPO_ROOT.Path)/scripts/bcplus_eval/run_bcplus_eval.py" `
   --dataset "$($REPO_ROOT.Path)/data/dci-bench/data/hotpotqa/test.jsonl" `
   --output-root "$($REPO_ROOT.Path)/outputs/qa/openai_hotpotqa_dev_sample50" `
-  --corpus-dir "/lambda/nfs/demo/GDPval/wiki_corpus" `
+  --corpus-dir "$($REPO_ROOT.Path)/corpus/wiki_corpus" `
   --package-dir "$($REPO_ROOT.Path)/pi-mono/packages/coding-agent" `
   --agent-dir "$($REPO_ROOT.Path)/pi-mono/.pi/agent" `
   --provider openai `
