@@ -217,3 +217,5 @@ __marimo__/
 /data
 /pi-mono
 /logs*
+.claude/
+.claudeignore
