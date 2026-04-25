@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 # Auto-load .env from repo root if present
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && git rev-parse --show-toplevel 2>/dev/null)"
 if [ -z "$REPO_ROOT" ]; then
@@ -14,21 +16,13 @@ if [ -f "$REPO_ROOT/.env" ]; then
     set +a
 fi
 
-set -euo pipefail
-
-REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-QUESTION="Read the files in the current directory. Do not use web search. Use rg instead of grep when searching. Question: In the Bonang Matheba interview where the third-to-last question asks about the origin of the name given to her by radio listeners, what is the interviewer's first name? Answer with just the first name and one supporting file path."
+QUESTION="Answer the following question using only wiki_dump.jsonl in the current directory. Do not use web search. Use rg instead of grep for fast searching. Question: In which street did the Great Fire of London originate?"
 
 # This example expects ~/.pi/agent/models.json to define a custom provider named
-# "vllm" and a matching model id. See README for a minimal models.json snippet.
+# "vllm" and a matching model id. See docs/setup.md for vLLM configuration.
 cd "$REPO_ROOT"
-uv run dci-run-pi-rpc \
+uv run dci-agent-lite \
   --provider vllm \
   --model Qwen/Qwen2.5-Coder-32B-Instruct \
-  --package-dir "$REPO_ROOT/pi-mono/packages/coding-agent" \
-  --agent-dir "$REPO_ROOT/pi-mono/.pi/agent" \
-  --cwd "$REPO_ROOT/corpus/bc_plus_docs/thefourwallmag.wordpress.com" \
-  --tools read,bash \
-  --max-turns 6 \
-  --show-tools \
+  --cwd "$REPO_ROOT/corpus/wiki_corpus" \
   "$QUESTION"

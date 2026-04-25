@@ -87,6 +87,19 @@ def read_text_if_exists(path: Optional[Path]) -> Optional[str]:
     return path.read_text(encoding="utf-8")
 
 
+def resolve_repo_relative_path(path: Optional[Path]) -> Optional[Path]:
+    if path is None:
+        return None
+    if path.is_absolute():
+        return path.resolve()
+
+    cwd_candidate = path.resolve()
+    if cwd_candidate.exists():
+        return cwd_candidate
+
+    return (REPO_ROOT / path).resolve()
+
+
 def read_json_if_exists(path: Path) -> Optional[Dict[str, Any]]:
     if not path.exists():
         return None
@@ -144,6 +157,61 @@ def expand_extra_args(values: List[str]) -> List[str]:
         if parts:
             expanded.extend(parts)
     return expanded
+
+
+def ensure_built_pi_cli(package_dir: Path) -> Path:
+    dist_cli = package_dir / "dist" / "cli.js"
+    if dist_cli.exists():
+        return dist_cli
+
+    pi_repo_root = package_dir.parents[1]
+    sys.stderr.write("[setup] dist/cli.js not found, running `npm run build` at monorepo root\n")
+    sys.stderr.flush()
+    subprocess.run(
+        ["npm", "run", "build"],
+        cwd=str(pi_repo_root),
+        env=_node_env(os.environ.copy()),
+        check=True,
+    )
+    if not dist_cli.exists():
+        raise RuntimeError(f"Build completed but CLI was not found at {dist_cli}")
+    return dist_cli
+
+
+def build_pi_command(
+    *,
+    package_dir: Path,
+    mode: Optional[str],
+    provider: Optional[str],
+    model: Optional[str],
+    tools: Optional[str],
+    no_session: bool,
+    system_prompt_file: Optional[Path],
+    append_system_prompt_file: Optional[Path],
+    extra_args: List[str],
+    messages: Optional[List[str]] = None,
+) -> List[str]:
+    dist_cli = ensure_built_pi_cli(package_dir)
+    cmd = [_node_bin(), str(dist_cli)]
+    if mode:
+        cmd.extend(["--mode", mode])
+
+    if provider:
+        cmd.extend(["--provider", provider])
+    if model:
+        cmd.extend(["--model", model])
+    if tools:
+        cmd.extend(["--tools", tools])
+    if system_prompt_file:
+        cmd.extend(["--system-prompt", str(system_prompt_file)])
+    if append_system_prompt_file:
+        cmd.extend(["--append-system-prompt", str(append_system_prompt_file)])
+    if no_session:
+        cmd.append("--no-session")
+    cmd.extend(extra_args)
+    if messages:
+        cmd.extend(messages)
+    return cmd
 
 
 def load_eval_answer(
@@ -1111,41 +1179,21 @@ class PiRpcClient:
         self._request_id = 0
 
     def _ensure_built_cli(self) -> Path:
-        dist_cli = self.package_dir / "dist" / "cli.js"
-        if dist_cli.exists():
-            return dist_cli
-
-        pi_repo_root = self.package_dir.parents[1]
-        sys.stderr.write("[setup] dist/cli.js not found, running `npm run build` at monorepo root\n")
-        sys.stderr.flush()
-        subprocess.run(
-            ["npm", "run", "build"],
-            cwd=str(pi_repo_root),
-            env=_node_env(os.environ.copy()),
-            check=True,
-        )
-        if not dist_cli.exists():
-            raise RuntimeError(f"Build completed but CLI was not found at {dist_cli}")
-        return dist_cli
+        return ensure_built_pi_cli(self.package_dir)
 
     def _build_command(self) -> List[str]:
-        dist_cli = self._ensure_built_cli()
-        cmd = [_node_bin(), str(dist_cli), "--mode", "rpc"]
-
-        if self.provider:
-            cmd.extend(["--provider", self.provider])
-        if self.model:
-            cmd.extend(["--model", self.model])
-        if self.tools:
-            cmd.extend(["--tools", self.tools])
-        if self.system_prompt_file:
-            cmd.extend(["--system-prompt", str(self.system_prompt_file)])
-        if self.append_system_prompt_file:
-            cmd.extend(["--append-system-prompt", str(self.append_system_prompt_file)])
-        if self.no_session:
-            cmd.append("--no-session")
-        cmd.extend(self.extra_args)
-        return cmd
+        self._ensure_built_cli()
+        return build_pi_command(
+            package_dir=self.package_dir,
+            mode="rpc",
+            provider=self.provider,
+            model=self.model,
+            tools=self.tools,
+            no_session=self.no_session,
+            system_prompt_file=self.system_prompt_file,
+            append_system_prompt_file=self.append_system_prompt_file,
+            extra_args=self.extra_args,
+        )
 
     def start(self) -> None:
         if self.proc is not None:
@@ -1299,6 +1347,14 @@ def parse_args() -> argparse.Namespace:
         )
     )
     parser.add_argument("question", nargs="*", help="Question text. If omitted, reads from --question-file or stdin.")
+    parser.add_argument(
+        "--terminal",
+        action="store_true",
+        help=(
+            "Launch pi in its interactive terminal UI instead of the RPC artifact runner. "
+            "Positional question text or --question-file is forwarded as the initial message."
+        ),
+    )
     parser.add_argument("--question-file", type=Path, help="Read the question from a UTF-8 text file.")
     parser.add_argument("--provider", help="Provider passed to pi, e.g. anthropic or openai.")
     parser.add_argument("--model", help="Model id or pattern passed to pi.")
@@ -1333,12 +1389,19 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--system-prompt-file",
         type=Path,
-        help="Optional text file passed to pi via --system-prompt. By default, pi uses its own dynamically generated system prompt.",
+        help=(
+            "Optional text file passed to pi via --system-prompt. "
+            "Relative paths are resolved against the current directory first, then the DCI repo root. "
+            "By default, pi uses its own dynamically generated system prompt."
+        ),
     )
     parser.add_argument(
         "--append-system-prompt-file",
         type=Path,
-        help="Optional text file passed to pi via --append-system-prompt.",
+        help=(
+            "Optional text file passed to pi via --append-system-prompt. "
+            "Relative paths are resolved against the current directory first, then the DCI repo root."
+        ),
     )
     parser.add_argument(
         "--output-dir",
@@ -1504,8 +1567,86 @@ def normalize_resume_mode(output_dir: Path, resume_requested: bool) -> tuple[boo
     return True, None
 
 
+def terminal_initial_messages(args: argparse.Namespace) -> List[str]:
+    if args.question_file:
+        message = args.question_file.read_text(encoding="utf-8").strip()
+        return [message] if message else []
+    if args.question:
+        message = " ".join(args.question).strip()
+        return [message] if message else []
+    return []
+
+
+def validate_terminal_mode_args(args: argparse.Namespace) -> Optional[str]:
+    incompatible: List[str] = []
+    if args.output_dir is not None:
+        incompatible.append("--output-dir")
+    if args.resume is not None:
+        incompatible.append("--resume")
+    if args.max_turns is not None:
+        incompatible.append("--max-turns")
+    if args.show_tools:
+        incompatible.append("--show-tools")
+    if args.conversation_clear_tool_results:
+        incompatible.append("--conversation-clear-tool-results")
+    if args.conversation_externalize_tool_results:
+        incompatible.append("--conversation-externalize-tool-results")
+    if args.conversation_strip_thinking:
+        incompatible.append("--conversation-strip-thinking")
+    if args.conversation_strip_usage:
+        incompatible.append("--conversation-strip-usage")
+    if args.eval_answer is not None:
+        incompatible.append("--eval-answer")
+    if args.eval_answer_file is not None:
+        incompatible.append("--eval-answer-file")
+
+    if incompatible:
+        return "--terminal cannot be combined with runner-only options: " + ", ".join(incompatible)
+    if not sys.stdin.isatty() or not sys.stdout.isatty():
+        return "--terminal requires an interactive stdin/stdout TTY"
+    return None
+
+
+def run_terminal_mode(args: argparse.Namespace) -> int:
+    error = validate_terminal_mode_args(args)
+    if error:
+        print(error, file=sys.stderr)
+        return 2
+
+    system_prompt_file = resolve_repo_relative_path(args.system_prompt_file)
+    append_system_prompt_file = resolve_repo_relative_path(args.append_system_prompt_file)
+    env = _node_env(os.environ.copy())
+    env["PI_CODING_AGENT_DIR"] = str(args.agent_dir.resolve())
+    cmd = build_pi_command(
+        package_dir=args.package_dir.resolve(),
+        mode=None,
+        provider=args.provider,
+        model=args.model,
+        tools=args.tools,
+        no_session=False,
+        system_prompt_file=system_prompt_file,
+        append_system_prompt_file=append_system_prompt_file,
+        extra_args=expand_extra_args(args.extra_arg),
+        messages=terminal_initial_messages(args),
+    )
+    completed = subprocess.run(
+        cmd,
+        cwd=str(args.cwd.resolve()),
+        env=env,
+        check=False,
+    )
+    return completed.returncode
+
+
 def main() -> int:
     args = parse_args()
+    if args.terminal:
+        try:
+            return run_terminal_mode(args)
+        except Exception as exc:
+            print(f"Terminal run failed: {exc}", file=sys.stderr)
+            return 1
+
     if args.eval_answer and args.eval_answer_file:
         print("Use at most one of --eval-answer and --eval-answer-file.", file=sys.stderr)
         return 2
@@ -1534,7 +1675,8 @@ def main() -> int:
         print("No question provided. Use positional text, --question-file, or stdin.", file=sys.stderr)
         return 2
 
-    system_prompt_file = args.system_prompt_file
+    system_prompt_file = resolve_repo_relative_path(args.system_prompt_file)
+    append_system_prompt_file = resolve_repo_relative_path(args.append_system_prompt_file)
     if not resume:
         if output_dir.exists() and not is_directory_empty(output_dir):
             print(
@@ -1592,8 +1734,8 @@ def main() -> int:
             model=args.model,
             tools=args.tools,
             max_turns=args.max_turns,
-            system_prompt_file=system_prompt_file.resolve() if system_prompt_file else None,
-            append_system_prompt_file=args.append_system_prompt_file.resolve() if args.append_system_prompt_file else None,
+            system_prompt_file=system_prompt_file,
+            append_system_prompt_file=append_system_prompt_file,
             conversation_features=conversation_features,
             keep_session=args.keep_session,
             resume=resume,
@@ -1611,8 +1753,8 @@ def main() -> int:
         tools=args.tools,
         no_session=not args.keep_session,
         show_tools=args.show_tools,
-        system_prompt_file=system_prompt_file.resolve() if system_prompt_file else None,
-        append_system_prompt_file=args.append_system_prompt_file.resolve() if args.append_system_prompt_file else None,
+        system_prompt_file=system_prompt_file,
+        append_system_prompt_file=append_system_prompt_file,
         extra_args=expand_extra_args(args.extra_arg),
     )
 

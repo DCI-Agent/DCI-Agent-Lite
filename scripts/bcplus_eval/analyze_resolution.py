@@ -9,6 +9,7 @@ import os
 import re
 import shlex
 import subprocess
+import sys
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
@@ -18,7 +19,7 @@ from urllib.parse import urlparse
 
 SCRIPT_PATH = Path(__file__).resolve()
 REPO_ROOT = SCRIPT_PATH.parents[2]
-DEFAULT_OUTPUT_ROOT = REPO_ROOT / "outputs" / "bcplus_eval_100" / "openai_level5_limit10_concurrency10"
+DEFAULT_OUTPUT_ROOT = REPO_ROOT / "outputs" / "bcplus_eval"
 
 RG_HIT_RE = re.compile(r"^(?P<path>(?:\.{0,2}/|/)[^:\n]+):(?P<line>\d+):(?P<text>.*)$")
 FILE_LINE_RE = re.compile(r"^(?:\.{0,2}/|/).+")
@@ -71,7 +72,10 @@ def parse_args() -> argparse.Namespace:
         "--output-root",
         type=Path,
         default=DEFAULT_OUTPUT_ROOT,
-        help=f"Run directory containing per-query outputs. Default: {DEFAULT_OUTPUT_ROOT}",
+        help=(
+            f"Run directory containing per-query outputs. Default: {DEFAULT_OUTPUT_ROOT}. "
+            "If this points to a parent directory with multiple runs, the latest analyzable child is selected."
+        ),
     )
     parser.add_argument(
         "--corpus-dir",
@@ -232,6 +236,35 @@ def iter_query_dirs(output_root: Path) -> Iterable[Path]:
     for child in sorted(output_root.iterdir(), key=lambda p: p.name):
         if child.is_dir() and (child / "item.json").exists() and (child / "conversation_full.json").exists():
             yield child
+
+
+def is_analyzable_output_root(path: Path) -> bool:
+    if not path.is_dir():
+        return False
+    if (path / "config.json").exists():
+        return True
+    return any(True for _ in iter_query_dirs(path))
+
+
+def resolve_output_root(path: Path) -> Path:
+    resolved = path.resolve()
+    if is_analyzable_output_root(resolved):
+        return resolved
+
+    candidates = [
+        child
+        for child in resolved.iterdir()
+        if child.is_dir() and is_analyzable_output_root(child)
+    ] if resolved.exists() else []
+    if not candidates:
+        return resolved
+
+    selected = max(candidates, key=lambda child: child.stat().st_mtime)
+    print(
+        f"[analyze_resolution] selected latest analyzable run under {resolved}: {selected}",
+        file=sys.stderr,
+    )
+    return selected.resolve()
 
 
 def reanchor_to_local_corpus(path: Path, corpus_dir: Path) -> Path:
@@ -813,7 +846,7 @@ def render_markdown(report: Dict[str, Any]) -> str:
 
 def main() -> int:
     args = parse_args()
-    output_root = args.output_root.resolve()
+    output_root = resolve_output_root(args.output_root)
     if not output_root.exists():
         raise FileNotFoundError(f"Output root does not exist: {output_root}")
 

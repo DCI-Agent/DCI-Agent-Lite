@@ -38,6 +38,7 @@
 
 - [⚙️ Setup](#setup)
 - [⚡ Quick Start](#quick-start)
+- [CLI Reference](docs/cli-reference.md)
 - [🚀 Running Experiments](#running-experiments)
 - [🎯 Benchmark Evaluation](#benchmark-evaluation)
 - [🏗️ Repository Layout](#repository-layout)
@@ -60,7 +61,7 @@ bash setup.sh
 <details>
 <summary>Manual Steps</summary>
 
-See [`docs/setup.md`](docs/setup.md) for detailed prerequisites, Pi monorepo build instructions, API-key configuration, and vLLM provider setup.
+See [`docs/setup.md`](docs/setup.md) for detailed prerequisites, repo build instructions, API-key configuration, and vLLM provider setup.
 
 Quick manual path:
 
@@ -86,68 +87,117 @@ uv run python scripts/download_dci_bench.py
 
 </details>
 
----
+### Configuration
+
+Copy the template to `.env`, then fill in the variables you need. To get DCI running, set at least one of `OPENAI_API_KEY` or `ANTHROPIC_API_KEY`:
+
+```bash
+cp .env.template .env
+```
+
+Common variables:
+
+- `OPENAI_API_KEY` for OpenAI model runs and benchmark judging by default.
+- `ANTHROPIC_API_KEY` for Anthropic model runs.
 
 <a name="quick-start"></a>
 ## ⚡ Quick Start
 
-Run a single question through the Python RPC wrapper (scripts auto-load `.env` automatically; for manual CLI, source it first):
+**Prerequisites**: Install dependencies and configure an OpenAI API key (see [Setup](#setup)).
+
+The example below illustrates DCI-Agent-Lite in action: the deep research agent searches the corpus, inspects relevant documents, and produces evidence-grounded answers entirely within the given wikipedia corpus.
+
+1. **Open the DCI-Agent-Lite TUI**:
 
 ```bash
-# Optional: load keys from .env if not already in environment
+# load keys from .env if not already in environment
 set -a; source .env 2>/dev/null; set +a
 
-uv run dci-run-pi-rpc \
-  --provider anthropic \
-  --model claude-sonnet-4-20250514 \
-  --package-dir "$PWD/pi-mono/packages/coding-agent" \
-  --agent-dir "$PWD/pi-mono/.pi/agent" \
-  --cwd "$PWD/corpus/bc_plus_docs/thefourwallmag.wordpress.com" \
-  --tools read,bash \
-  --max-turns 6 \
-  --show-tools \
-  "your question here"
+uv run dci-agent-lite --terminal \
+  --provider openai \
+  --model gpt-5.4-nano \
+  --cwd "corpus/wiki_corpus" \
+  --extra-arg="--thinking high"
 ```
 
-**Runnable examples** ( Anthropic / OpenAI / vLLM — [setup guide](docs/setup.md#5-optional-configure-a-local-vllm-provider)):
+2. **Run your first task**. In the TUI, type:
+
+```text
+Answer the following question using only wiki_dump.jsonl in the current directory. Do not use web search. Use rg instead of grep for fast searching. Question: In which street did the Great Fire of London originate?
+```
+
+3. **Run Programmatically from the CLI**. Remove the `--terminal` flag and pass your task as the final argument:
 
 ```bash
-bash scripts/examples/dci_basic_anthropic_example.sh
-bash scripts/examples/dci_basic_openai_example.sh
-bash scripts/examples/dci_basic_vllm_example.sh
+set -a; source .env 2>/dev/null; set +a
+
+uv run dci-agent-lite \
+  --provider openai \
+  --model gpt-5.4-nano \
+  --cwd "corpus/wiki_corpus" \
+  --extra-arg="--thinking high" \
+  "Answer the following question using only wiki_dump.jsonl in the current directory. Do not use web search. Use rg instead of grep for fast searching. Question: In which street did the Great Fire of London originate?"
 ```
 
----
+Programmatic runs save artifacts under `outputs/runs/<timestamp>/`. The final answer is in `final.txt`, the original question is in `question.txt`, and the full trajectory is in `conversation_full.json`. To choose a specific location, pass `--output-dir path/to/run`. 
+
+More runnable examples for OpenAI, Anthropic and vLLM are available in [`scripts/examples/`](scripts/examples/) as `dci_basic_*.sh`. See the [setup guide](docs/setup.md#5-optional-configure-a-local-vllm-provider) for vLLM configuration.
+
+
+## 🚀 Context Management Strategies
+
+DCI-Agent-Lite includes a lightweight runtime context-management layer for long-horizon deep research runs.
+
+It uses three simple strategies:
+
+- **Truncation** shortens large tool results in each turn.
+- **Compaction** keeps recent turns and replaces older tool results with placeholders.
+- **Summarization** summarizes older history when the context gets crowded.
+
+The runtime levels move from no context management to more aggressive compression:
+
+| Level | Behavior |
+|-------|----------|
+| `level0` | No context management. |
+| `level1` | Light truncation. |
+| `level2` | Stronger truncation. |
+| `level3` | Truncation and compaction. |
+| `level4` | Truncation, compaction, and summarization. |
+
+Pass a level through Pi with `--extra-arg`:
+
+```bash
+set -a; source .env 2>/dev/null; set +a
+
+uv run dci-agent-lite \
+  --provider openai \
+  --model gpt-5.4-nano \
+  --cwd "corpus/wiki_corpus" \
+  --extra-arg="--thinking high" \
+  --extra-arg="--context-management-level level4" \
+  "Answer the following question using only wiki_dump.jsonl in the current directory. Do not use web search. Use rg instead of grep for fast searching. Question: In which street did the Great Fire of London originate?"
+```
+
 
 <a name="running-experiments"></a>
-## 🚀 Running Experiments
+## 🎯 Benchmark DCI-Agent-Lite 
 
-### RPC wrapper (recommended)
 
-| Task | Command | Docs |
-|------|---------|------|
-| Basic run | `uv run dci-run-pi-rpc --provider anthropic --model ... "question"` | [`docs/running.md`](docs/running.md#basic-example) |
-| Resume run | `uv run dci-run-pi-rpc --resume ...` | [`docs/running.md`](docs/running.md#resume-a-run) |
-| Override system prompt | `uv run dci-run-pi-rpc --system-prompt-file prompts/system_prompt.txt ...` | [`docs/running.md`](docs/running.md#override-system-prompt) |
-| Runtime context ablation | `--extra-arg="--context-management-level level5"` | [`docs/running.md`](docs/running.md#runtime-context-management-levels) |
-| Transcript compaction | `--conversation-clear-tool-results --conversation-externalize-tool-results` | [`docs/artifacts.md`](docs/artifacts.md#artifact-only-transcript-compaction) |
-
-### Direct Pi (Node CLI)
+### Agentic Search (BrowseComp-Plus)
 
 ```bash
-PI_CODING_AGENT_DIR="$PWD/pi-mono/.pi/agent" \
-node "$PWD/pi-mono/packages/coding-agent/dist/cli.js" \
-  --model gpt-5.4-nano \
-  --tools read,bash \
-  -p "your question here"
+# Anthropic (default provider)
+uv run python scripts/bcplus_eval/run_bcplus_eval.py
+
+# OpenAI
+bash scripts/bcplus_eval/run_bcplus_eval_openai.sh
+
+# OpenAI with custom runtime level
+bash scripts/bcplus_eval/run_bcplus_eval_openai.sh level1
+
+# Fixed level3
+bash scripts/bcplus_eval/run_L3.sh
 ```
-
-Direct examples: `scripts/examples/pi_direct_*`
-
----
-
-<a name="benchmark-evaluation"></a>
-## 🎯 Benchmark Evaluation
 
 ### Knowledge-Intensive QA
 
@@ -170,21 +220,7 @@ bash scripts/bright/run_economics.sh
 bash scripts/bright/run_robotics.sh
 ```
 
-### Agentic Search (BrowseComp-Plus)
 
-```bash
-# Anthropic (default provider)
-uv run python scripts/bcplus_eval/run_bcplus_eval.py
-
-# OpenAI
-bash scripts/bcplus_eval/run_bcplus_eval_openai.sh
-
-# OpenAI with custom runtime level
-bash scripts/bcplus_eval/run_bcplus_eval_openai.sh level1
-
-# Fixed level3
-bash scripts/bcplus_eval/run_L3.sh
-```
 
 See [`docs/benchmark.md`](docs/benchmark.md) for parameters and prompt references.
 

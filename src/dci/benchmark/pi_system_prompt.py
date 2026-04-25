@@ -40,6 +40,19 @@ def parse_tools(raw: str | None) -> List[str]:
     return tools or ["read", "bash", "edit", "write"]
 
 
+def resolve_repo_relative_path(path: Path | None) -> Path | None:
+    if path is None:
+        return None
+    if path.is_absolute():
+        return path.resolve()
+
+    cwd_candidate = path.resolve()
+    if cwd_candidate.exists():
+        return cwd_candidate
+
+    return (REPO_ROOT / path).resolve()
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Print pi's default dynamically generated system prompt for a given tool set."
@@ -63,7 +76,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--append-system-prompt-file",
         type=Path,
-        help="Optional text file appended the same way pi would append a system prompt.",
+        help=(
+            "Optional text file appended the same way pi would append a system prompt. "
+            "Relative paths are resolved against the current directory first, then the DCI repo root."
+        ),
     )
     return parser.parse_args()
 
@@ -75,8 +91,9 @@ def main() -> int:
     tools = parse_tools(args.tools)
     append_text = ""
 
-    if args.append_system_prompt_file:
-        append_text = args.append_system_prompt_file.read_text(encoding="utf-8")
+    append_system_prompt_file = resolve_repo_relative_path(args.append_system_prompt_file)
+    if append_system_prompt_file:
+        append_text = append_system_prompt_file.read_text(encoding="utf-8")
 
     ensure_built_package(package_dir)
 

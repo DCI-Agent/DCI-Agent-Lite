@@ -5,10 +5,12 @@
 Main entry point:
 
 ```bash
-uv run dci-run-pi-rpc
+uv run dci-agent-lite
 ```
 
 The runner assumes your built Pi checkout is at `./pi-mono` unless you override `--package-dir` and `--agent-dir`.
+
+`dci-run-pi-rpc` remains available as a legacy alias.
 
 By default:
 
@@ -19,15 +21,15 @@ By default:
 ### Basic example
 
 ```bash
-uv run dci-run-pi-rpc \
-  --provider anthropic \
-  --model claude-sonnet-4-20250514 \
+uv run dci-agent-lite \
+  --provider openai \
+  --model gpt-5.4-nano \
   --package-dir "$PWD/pi-mono/packages/coding-agent" \
   --agent-dir "$PWD/pi-mono/.pi/agent" \
   --cwd "$PWD/corpus/bc_plus_docs/thefourwallmag.wordpress.com" \
   --tools read,bash \
   --max-turns 6 \
-  --show-tools \
+  --extra-arg="--thinking low" \
   "your question here"
 ```
 
@@ -37,12 +39,27 @@ Provider-specific runnable examples live under `scripts/examples/`:
 - OpenAI: `dci_basic_openai_example.sh`
 - vLLM: `dci_basic_vllm_example.sh`
 
+### Interactive terminal
+
+Use `--terminal` to launch Pi's interactive terminal UI through the same wrapper:
+
+```bash
+uv run dci-agent-lite --terminal \
+  --provider openai \
+  --model gpt-5.4-nano \
+  --cwd "$PWD/corpus/wiki_corpus" \
+  --tools read,bash \
+  --extra-arg="--thinking high"
+```
+
+Optional positional text or `--question-file` is forwarded as the initial message. Terminal mode does not write RPC runner artifacts, so it cannot be combined with runner-only flags such as `--output-dir`, `--resume`, `--max-turns`, `--show-tools`, or `--eval-answer`.
+
 ### Resume a run
 
 Resume by pointing directly at a run directory:
 
 ```bash
-uv run dci-run-pi-rpc \
+uv run dci-agent-lite \
   --resume "$PWD/outputs/runs/bonang-test" \
   --provider anthropic \
   --model claude-sonnet-4-20250514 \
@@ -54,7 +71,7 @@ uv run dci-run-pi-rpc \
 Or resume the same directory named in `--output-dir`:
 
 ```bash
-uv run dci-run-pi-rpc \
+uv run dci-agent-lite \
   --output-dir "$PWD/outputs/runs/bonang-test" \
   --resume \
   --provider anthropic \
@@ -69,8 +86,8 @@ uv run dci-run-pi-rpc \
 ### Override system prompt
 
 ```bash
-uv run dci-run-pi-rpc \
-  --system-prompt-file "$PWD/prompts/system_prompt.txt" \
+uv run dci-agent-lite \
+  --system-prompt-file "$(git rev-parse --show-toplevel)/prompts/system_prompt.txt" \
   --provider anthropic \
   --model claude-sonnet-4-20250514 \
   "your system prompt"
@@ -85,48 +102,48 @@ Quick decision rule:
 - Use runtime levels for **experiments, ablations, and model-behavior comparisons** (for artifact-only levels see [artifacts.md](artifacts.md#optimize-levels))
 - Use conversation artifact compaction (see [artifacts.md](artifacts.md#artifact-only-transcript-compaction)) only when you want smaller saved files
 
-### Through `dci-run-pi-rpc`
+### Through `dci-agent-lite`
 
 Use `--extra-arg` to forward the runtime profile into Pi:
 
 ```bash
 # level0: current upstream runtime behavior
-uv run dci-run-pi-rpc \
+uv run dci-agent-lite \
   --provider anthropic \
   --model claude-sonnet-4-20250514 \
   --extra-arg="--context-management-level level0" \
   "your question here"
 
 # level1: only truncate very large tool results
-uv run dci-run-pi-rpc \
+uv run dci-agent-lite \
   --provider anthropic \
   --model claude-sonnet-4-20250514 \
   --extra-arg="--context-management-level level1" \
   "your question here"
 
 # level2: stricter truncation
-uv run dci-run-pi-rpc \
+uv run dci-agent-lite \
   --provider anthropic \
   --model claude-sonnet-4-20250514 \
   --extra-arg="--context-management-level level2" \
   "your question here"
 
 # level3: truncation + micro-compaction
-uv run dci-run-pi-rpc \
+uv run dci-agent-lite \
   --provider anthropic \
   --model claude-sonnet-4-20250514 \
   --extra-arg="--context-management-level level3" \
   "your question here"
 
 # legacy / level4: closest to the older pi runtime
-uv run dci-run-pi-rpc \
+uv run dci-agent-lite \
   --provider anthropic \
   --model claude-sonnet-4-20250514 \
   --extra-arg="--context-management-level legacy" \
   "your question here"
 
 # level5: most aggressive runtime profile
-uv run dci-run-pi-rpc \
+uv run dci-agent-lite \
   --provider anthropic \
   --model claude-sonnet-4-20250514 \
   --extra-arg="--context-management-level level5" \

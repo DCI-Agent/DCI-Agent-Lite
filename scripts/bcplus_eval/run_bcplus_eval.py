@@ -48,6 +48,19 @@ COLOR_TOOL = "#72B7B2"
 COLOR_NON_TOOL = "#F2CF5B"
 
 
+def resolve_repo_relative_path(path: Optional[Path]) -> Optional[Path]:
+    if path is None:
+        return None
+    if path.is_absolute():
+        return path.resolve()
+
+    cwd_candidate = path.resolve()
+    if cwd_candidate.exists():
+        return cwd_candidate
+
+    return (REPO_ROOT / path).resolve()
+
+
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -55,7 +68,7 @@ def utc_now() -> str:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Run the BrowseComp-Plus eval set with dci-run-pi-rpc, "
+            "Run the BrowseComp-Plus eval set with dci-agent-lite, "
             "grade each final answer with OpenAI, and write per-question plus aggregate metrics."
         )
     )
@@ -100,19 +113,19 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--system-prompt-file",
         type=Path,
-        help="Optional text file forwarded to dci-run-pi-rpc --system-prompt-file.",
+        help="Optional text file forwarded to dci-agent-lite --system-prompt-file.",
     )
     parser.add_argument(
         "--append-system-prompt-file",
         type=Path,
-        help="Optional text file forwarded to dci-run-pi-rpc --append-system-prompt-file.",
+        help="Optional text file forwarded to dci-agent-lite --append-system-prompt-file.",
     )
     parser.add_argument(
         "--pi-extra-arg",
         action="append",
         default=[],
         help=(
-            "Extra CLI arg or quoted arg string forwarded to pi through dci-run-pi-rpc. "
+            "Extra CLI arg or quoted arg string forwarded to pi through dci-agent-lite. "
             'Example: --pi-extra-arg="--thinking off"'
         ),
     )
@@ -560,7 +573,7 @@ def build_run_command(
     cmd: List[str] = [
         "uv",
         "run",
-        "dci-run-pi-rpc",
+        "dci-agent-lite",
         "--provider",
         args.provider,
         "--model",
@@ -1589,6 +1602,10 @@ async def main_async() -> int:
         return 2
 
     args.output_root.mkdir(parents=True, exist_ok=True)
+    system_prompt_file = resolve_repo_relative_path(args.system_prompt_file)
+    append_system_prompt_file = resolve_repo_relative_path(args.append_system_prompt_file)
+    args.system_prompt_file = system_prompt_file
+    args.append_system_prompt_file = append_system_prompt_file
     previous_summary = read_json_if_exists(args.output_root / "summary.json") or {}
     run_config = {
         "started_at": utc_now(),
@@ -1602,8 +1619,8 @@ async def main_async() -> int:
         "tools": args.tools,
         "max_turns": args.max_turns,
         "runtime_context_level": args.runtime_context_level,
-        "system_prompt_file": str(args.system_prompt_file.resolve()) if args.system_prompt_file else None,
-        "append_system_prompt_file": str(args.append_system_prompt_file.resolve()) if args.append_system_prompt_file else None,
+        "system_prompt_file": str(system_prompt_file) if system_prompt_file else None,
+        "append_system_prompt_file": str(append_system_prompt_file) if append_system_prompt_file else None,
         "pi_extra_arg": list(args.pi_extra_arg),
         "pi_thinking_level": args.pi_thinking_level,
         "max_concurrency": args.max_concurrency,

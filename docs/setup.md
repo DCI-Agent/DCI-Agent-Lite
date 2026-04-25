@@ -35,7 +35,7 @@ brew install ripgrep   # macOS
 uv sync
 ```
 
-### 3. Get and build Pi locally
+### 3. Get and build customized Pi locally
 
 This repo does not vendor the full npm workspace. Keep a local Pi checkout at `./pi-mono`.
 
@@ -115,12 +115,6 @@ python -m vllm.entrypoints.openai.api_server \
   --model Qwen/Qwen2.5-Coder-32B-Instruct \
   --enable-auto-tool-choice \
   --tool-call-parser hermes
-
-# For Llama 3.x models
-python -m vllm.entrypoints.openai.api_server \
-  --model meta-llama/Meta-Llama-3.1-8B-Instruct \
-  --enable-auto-tool-choice \
-  --tool-call-parser llama3_json
 ```
 
 If these flags are missing, Pi will fail with a `400 status code (no body)` error because the default `tool_choice: "auto"` is rejected.
@@ -131,29 +125,47 @@ If your local server ignores auth:
 export VLLM_API_KEY=dummy
 ```
 
-## Corpus Preparation
+## Data Preparation
 
-All corpora are downloaded from the [DCI-Agent/corpus](https://huggingface.co/datasets/DCI-Agent/corpus) HuggingFace dataset (gated — requires login).
+All benchmark datasets are downloaded from the [DCI-Agent/dci-bench](https://huggingface.co/datasets/DCI-Agent/dci-bench) HuggingFace dataset.
 
 ### Automated (recommended)
 
-`setup.sh` automatically downloads all subsets if `corpus/` does not exist.
+`setup.sh` automatically downloads and preprocesses benchmark data into `data/dci-bench/` if it does not exist, then extracts `data/bcplus_qa.jsonl` if it is missing.
 
-To download manually:
+### Manual
+
+To prepare the benchmark data by hand, first download the `DCI-Agent/dci-bench` dataset into `data/dci-bench/`:
+
+```bash
+uv run python scripts/download_dci_bench.py
+```
+
+Then extract the BrowseComp-Plus parquet files under `data/dci-bench/data/browsecomp-plus/` into the `data/bcplus_qa.jsonl` file used by the eval scripts:
+
+```bash
+uv run python scripts/bcplus_eval/extract_bcplus_qa.py
+```
+
+This creates `data/bcplus_qa.jsonl` with `query_id`, `query`, and `answer` fields for BrowseComp-Plus evaluation.
+
+## Corpus Preparation
+
+All corpus subsets are downloaded from the [DCI-Agent/corpus](https://huggingface.co/datasets/DCI-Agent/corpus) HuggingFace dataset. The default workflow also exports BrowseComp-Plus into document-style folders for local retrieval.
+
+### Automated (recommended)
+
+`setup.sh` automatically downloads and processes the corpus bundle if `corpus/browsecomp_plus` does not exist.
+
+### Manual
+
+To prepare the corpus by hand, run the downloader below. It fetches all supported subsets into `corpus/` and exports BrowseComp-Plus into `corpus/bc_plus_docs/`:
 
 ```bash
 uv run python scripts/download_corpus.py
 ```
 
-To skip the BrowseComp-Plus export step:
-
-```bash
-uv run python scripts/download_corpus.py --skip-export
-```
-
-### Manual download
-
-If you prefer to download individual subsets directly:
+If you only want a specific subset, log in to HuggingFace and download it directly:
 
 ```bash
 # Login first (one-time)
@@ -168,7 +180,7 @@ snapshot_download('DCI-Agent/corpus', repo_type='dataset', local_dir='corpus', a
 
 ### Export BrowseComp-Plus to domain-first docs
 
-After downloading, export the BrowseComp-Plus parquet into domain-first text folders:
+If you downloaded BrowseComp-Plus separately, export the parquet files into domain-first text folders with:
 
 ```bash
 uv run dci-export-bc-plus-docs --source-dir "$PWD/corpus/browsecomp_plus" --output-dir "$PWD/corpus/bc_plus_docs"
@@ -179,13 +191,15 @@ This creates `corpus/bc_plus_docs` where:
 - first-level folder = URL domain
 - file name = document title when available
 
-### Available subsets
+### Benchmark and Corpus Overview
 
-| Subset | Path after download | Used for |
-|--------|---------------------|----------|
-| `browsecomp_plus` | `corpus/browsecomp_plus/` | BrowseComp-Plus eval |
-| `bright_biology` | `corpus/bright_biology/` | BRIGHT biology benchmark |
-| `bright_earth_science` | `corpus/bright_earth_science/` | BRIGHT earth science benchmark |
-| `bright_economics` | `corpus/bright_economics/` | BRIGHT economics benchmark |
-| `bright_robotics` | `corpus/bright_robotics/` | BRIGHT robotics benchmark |
-| `wiki` | `corpus/wiki/` | Wikipedia corpus for QA benchmarks |
+The benchmark scripts use the following dataset and retrieval-corpus pairs. `Avg. len.` is the mean document length measured in whitespace-split words.
+
+| Retrieval corpus | Used by | # Docs | Avg. len. (words) | Dataset path(s) | Corpus path |
+|------------------|---------|--------|-------------------|-----------------|-------------|
+| BrowseComp-Plus | BrowseComp-Plus | 100,195 | 5,179 | `data/bcplus_qa.jsonl` (generated from `data/dci-bench/data/browsecomp-plus/`) | `corpus/bc_plus_docs/` (exported from `corpus/browsecomp_plus/`) |
+| BRIGHT-Biology | BRIGHT-Biology | 57,359 | 48 | `data/dci-bench/data/bright_biology/bright_biology.jsonl` | `corpus/bright_corpus/biology/` |
+| BRIGHT-Earth Science | BRIGHT-Earth Science | 121,249 | 28 | `data/dci-bench/data/bright_earth_science/bright_earth_science.jsonl` | `corpus/bright_corpus/earth_science/` |
+| BRIGHT-Economics | BRIGHT-Economics | 50,220 | 52 | `data/dci-bench/data/bright_economics/economics_full.jsonl` | `corpus/bright_corpus/economics/` |
+| BRIGHT-Robotics | BRIGHT-Robotics | 61,961 | 25 | `data/dci-bench/data/bright_robotics/bright_robotics.jsonl` | `corpus/bright_corpus/robotics/` |
+| Wikipedia-18 | NQ, TriviaQA, Bamboogle, HotpotQA, 2WikiMultiHopQA, MuSiQue | 21,015,324 | 100 | `data/dci-bench/data/{nq,triviaqa,bamboogle,hotpotqa,2wikimultihopqa,musique}/test.jsonl` | `corpus/wiki_corpus/` |

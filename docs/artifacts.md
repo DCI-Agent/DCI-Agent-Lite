@@ -50,7 +50,7 @@ Use it only when you want:
 
 ```bash
 # level1
-uv run dci-run-pi-rpc \
+uv run dci-agent-lite \
   --conversation-clear-tool-results \
   --conversation-externalize-tool-results \
   --provider anthropic \
@@ -58,7 +58,7 @@ uv run dci-run-pi-rpc \
   "your question here"
 
 # level5
-uv run dci-run-pi-rpc \
+uv run dci-agent-lite \
   --conversation-clear-tool-results \
   --conversation-clear-tool-results-keep-last 0 \
   --conversation-externalize-tool-results \
