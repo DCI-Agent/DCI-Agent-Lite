@@ -30,8 +30,6 @@ QA_DATASETS = {
 }
 
 IR_DATASETS = {
-    "beir_arguana_sample50": "arguana",
-    "beir_scifact_sample50": "scifact",
     "bright_biology":        "biology",
     "bright_robotics":       "robotics",
 }

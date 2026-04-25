@@ -30,8 +30,6 @@ QA_DATASETS = [
 ]
 
 IR_DATASETS = [
-    ("eval_logs/claude_code/ir/beir_arguana_sample50", "arguana",  "ir"),
-    ("eval_logs/claude_code/ir/beir_scifact_sample50", "scifact",  "ir"),
     ("eval_logs/claude_code/ir/bright_biology",        "biology",  "ir"),
     ("eval_logs/claude_code/ir/bright_robotics",       "robotics", "ir"),
 ]

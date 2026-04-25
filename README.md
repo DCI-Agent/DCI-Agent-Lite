@@ -162,10 +162,6 @@ bash scripts/qa/run_bamboogle_test_sample50.sh
 ### IR Ranking
 
 ```bash
-# BEIR
-bash scripts/beir/run_arguana.sh
-bash scripts/beir/run_scifact.sh
-
 # BRIGHT
 bash scripts/bright/run_bio.sh
 bash scripts/bright/run_earth_science.sh
@@ -233,7 +229,6 @@ HRCI/
 |-- scripts/
 |   |-- examples/                    # Provider-specific runnable examples (bash)
 |   |-- bcplus_eval/                 # 100-question eval launchers
-|   |-- beir/                        # BEIR benchmark scripts
 |   |-- bright/                      # BRIGHT benchmark scripts
 |   `-- qa/                          # QA benchmark scripts
 |-- data/

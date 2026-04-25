@@ -20,8 +20,6 @@ ALL_DIRS = [
     'eval_logs/claude_code/qa/bamboogle_test_sample50',
     'eval_logs/claude_code/qa/nq_test_sample50',
     'eval_logs/claude_code/qa/triviaqa_test_sample50',
-    'eval_logs/claude_code/ir/beir_arguana_sample50',
-    'eval_logs/claude_code/ir/beir_scifact_sample50',
     'eval_logs/claude_code/ir/bright_biology',
     'eval_logs/claude_code/ir/bright_robotics',
     'eval_logs/claude_code/browsecomp-plus_full',
