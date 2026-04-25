@@ -17,19 +17,6 @@ bash scripts/bcplus_eval/run_bcplus_eval_openai.sh
 bash scripts/bcplus_eval/run_bcplus_eval_openai.sh level1
 ```
 
-<details>
-<summary>Windows PowerShell</summary>
-
-```powershell
-# OpenAI
-.\scripts\bcplus_eval\ps\run_bcplus_eval_openai.ps1
-
-# Fixed level3
-.\scripts\bcplus_eval\ps\run_L3.ps1
-```
-
-</details>
-
 ### Runtime-context-level evals
 
 ```bash

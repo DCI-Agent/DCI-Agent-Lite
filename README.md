@@ -22,7 +22,6 @@
 | **Node / npm** | Node >= 20, npm >= 10 | `setup.sh` auto-installs via nvm if Node < 20 |
 | **Python** | >= 3.10 | managed by [uv](https://github.com/astral-sh/uv) |
 | **Linux bash** | bash >= 5 (Ubuntu 20.04+) | `setup.sh` is the recommended entry point |
-| **Windows PowerShell** | PowerShell 7+ (pwsh) | run steps from `setup.sh` manually; WSL2 is the simpler path |
 
 ---
 
@@ -59,15 +58,6 @@
 ```bash
 bash setup.sh
 ```
-
-<details>
-<summary>Windows PowerShell (click to expand)</summary>
-
-```powershell
-.\setup.ps1
-```
-
-</details>
 
 ### Manual Steps
 
@@ -118,27 +108,6 @@ uv run hrci-run-pi-rpc \
   "your question here"
 ```
 
-<details>
-<summary>Windows PowerShell (click to expand)</summary>
-
-```powershell
-# Optional: load keys from .env if not already in environment
-Get-Content .env | ForEach-Object { if ($_ -match '^\s*([^#][^=]+)=(.*)$') { [System.Environment]::SetEnvironmentVariable($matches[1].Trim(), $matches[2].Trim(), "Process") } }
-
-uv run hrci-run-pi-rpc `
-  --provider anthropic `
-  --model claude-sonnet-4-20250514 `
-  --package-dir "$PWD\pi-mono\packages\coding-agent" `
-  --agent-dir "$PWD\pi-mono\.pi\agent" `
-  --cwd "$PWD\corpus\bc_plus_docs\thefourwallmag.wordpress.com" `
-  --tools read,bash `
-  --max-turns 6 `
-  --show-tools `
-  "your question here"
-```
-
-</details>
-
 **Runnable examples** ( Anthropic / OpenAI / vLLM — [setup guide](docs/setup.md#5-optional-configure-a-local-vllm-provider)):
 
 ```bash
@@ -146,17 +115,6 @@ bash scripts/examples/hrci_basic_anthropic_example.sh
 bash scripts/examples/hrci_basic_openai_example.sh
 bash scripts/examples/hrci_basic_vllm_example.sh
 ```
-
-<details>
-<summary>PowerShell examples (click to expand)</summary>
-
-```powershell
-.\scripts\examples\ps\hrci_basic_anthropic_example.ps1
-.\scripts\examples\ps\hrci_basic_openai_example.ps1
-.\scripts\examples\ps\hrci_basic_vllm_example.ps1
-```
-
-</details>
 
 ---
 
@@ -183,19 +141,6 @@ node "$PWD/pi-mono/packages/coding-agent/dist/cli.js" \
   -p "your question here"
 ```
 
-<details>
-<summary>Windows PowerShell (click to expand)</summary>
-
-```powershell
-$env:PI_CODING_AGENT_DIR = "$PWD\pi-mono\.pi\agent"
-node "$PWD\pi-mono\packages\coding-agent\dist\cli.js" `
-  --model gpt-5.4-nano `
-  --tools read,bash `
-  -p "your question here"
-```
-
-</details>
-
 Direct examples: `scripts/examples/pi_direct_*`
 
 ---
@@ -214,20 +159,6 @@ bash scripts/qa/run_2wikimultihopqa_dev_sample50.sh
 bash scripts/qa/run_bamboogle_test_sample50.sh
 ```
 
-<details>
-<summary>Windows PowerShell</summary>
-
-```powershell
-.\scripts\qa\ps\run_hotpotqa_dev_sample50.ps1
-.\scripts\qa\ps\run_musique_dev_sample50.ps1
-.\scripts\qa\ps\run_nq_test_sample50.ps1
-.\scripts\qa\ps\run_triviaqa_test_sample50.ps1
-.\scripts\qa\ps\run_2wikimultihopqa_dev_sample50.ps1
-.\scripts\qa\ps\run_bamboogle_test_sample50.ps1
-```
-
-</details>
-
 ### IR Ranking
 
 ```bash
@@ -241,23 +172,6 @@ bash scripts/bright/run_earth_science.sh
 bash scripts/bright/run_economics.sh
 bash scripts/bright/run_robotics.sh
 ```
-
-<details>
-<summary>Windows PowerShell</summary>
-
-```powershell
-# BEIR
-.\scripts\beir\ps\run_arguana.ps1
-.\scripts\beir\ps\run_scifact.ps1
-
-# BRIGHT
-.\scripts\bright\ps\run_bio.ps1
-.\scripts\bright\ps\run_earth_science.ps1
-.\scripts\bright\ps\run_economics.ps1
-.\scripts\bright\ps\run_robotics.ps1
-```
-
-</details>
 
 ### Agentic Search (BrowseComp-Plus)
 
@@ -274,19 +188,6 @@ bash scripts/bcplus_eval/run_bcplus_eval_openai.sh level1
 # Fixed level3
 bash scripts/bcplus_eval/run_L3.sh
 ```
-
-<details>
-<summary>Windows PowerShell</summary>
-
-```powershell
-# OpenAI
-.\scripts\bcplus_eval\ps\run_bcplus_eval_openai.ps1
-
-# Fixed level3
-.\scripts\bcplus_eval\ps\run_L3.ps1
-```
-
-</details>
 
 See [`docs/benchmark.md`](docs/benchmark.md) for parameters and prompt references.
 
@@ -331,7 +232,6 @@ HRCI/
 |   `-- pi_agent_benchmark.md        # Sample BrowseComp-Plus prompts
 |-- scripts/
 |   |-- examples/                    # Provider-specific runnable examples (bash)
-|   |-- examples/ps/                 # PowerShell examples
 |   |-- bcplus_eval/                 # 100-question eval launchers
 |   |-- beir/                        # BEIR benchmark scripts
 |   |-- bright/                      # BRIGHT benchmark scripts
@@ -341,7 +241,6 @@ HRCI/
 |-- prompts/
 |   `-- system_prompt.txt
 |-- setup.sh                         # One-click setup (Unix/macOS)
-|-- setup.ps1                        # One-click setup (Windows)
 |-- pyproject.toml
 `-- uv.lock
 ```
