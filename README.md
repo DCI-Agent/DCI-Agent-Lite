@@ -30,7 +30,6 @@
 - 🔍 **BrowseComp-Plus Corpus Search** — Export parquet shards into domain-first text folders for local agentic retrieval.
 - 🤖 **Pi RPC Runner** — Python wrapper around the Pi CLI with real-time event logging, resume support, and artifact compaction.
 - 🧪 **A/B Evaluation Scripts** — BrowseComp-Plus eval with provider-specific launchers (Anthropic, OpenAI).
-- 📊 **Analysis Toolkit** — Log parsers and figure generators for tool usage, bash commands, and metrics matrices.
 - ⚙️ **Context Management Ablations** — Runtime levels (`level0`–`level5`) and artifact-only transcript compaction for controlled experiments.
 
 ---
@@ -41,7 +40,6 @@
 - [⚡ Quick Start](#quick-start)
 - [🚀 Running Experiments](#running-experiments)
 - [🎯 Benchmark Evaluation](#benchmark-evaluation)
-- [📊 Analysis](#analysis)
 - [🏗️ Repository Layout](#repository-layout)
 - [🙏 Acknowledgements](#acknowledgements)
 - [📚 Citation](#citation)
@@ -189,24 +187,6 @@ See [`docs/benchmark.md`](docs/benchmark.md) for parameters and prompt reference
 
 ---
 
-<a name="analysis"></a>
-## 📊 Analysis
-
-```bash
-# Tool usage patterns
-uv run python -m hrci.analysis.tool_analysis
-
-# Bash command analysis
-uv run python -m hrci.analysis.bash_analysis
-
-# Metrics matrix
-uv run python -m hrci.analysis.metrics_matrix
-```
-
-See [`docs/analysis.md`](docs/analysis.md) for all modules and custom log paths.
-
----
-
 <a name="repository-layout"></a>
 ## 📁 Repository Layout
 
@@ -217,13 +197,10 @@ HRCI/
 |   |   |-- export_bc_plus_docs.py   # Parquet → domain-first txt folders
 |   |   |-- pi_rpc_runner.py         # Python RPC runner with event logging
 |   |   `-- pi_system_prompt.py      # Print Pi's default system prompt
-|   `-- analysis/
-|       `-- *.py                     # Figure and log analysis scripts
 |-- docs/
 |   |-- setup.md                     # Detailed installation guide
 |   |-- running.md                   # Running Pi (RPC & direct)
 |   |-- artifacts.md                 # Run artifacts & transcript compaction
-|   |-- analysis.md                  # Analysis scripts reference
 |   |-- benchmark.md                 # Benchmark evaluation guide
 |   `-- pi_agent_benchmark.md        # Sample BrowseComp-Plus prompts
 |-- scripts/
@@ -244,7 +221,6 @@ HRCI/
 
 - `pi-mono/` — Pi monorepo checkout
 - `corpus/` — parquet shards and exported `bc_plus_docs`
-- `cc-analysis/` — optional evaluation logs
 - `outputs/` — run artifacts and generated figures
 
 ---
