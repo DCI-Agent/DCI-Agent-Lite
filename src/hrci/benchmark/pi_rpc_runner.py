@@ -40,6 +40,35 @@ DEFAULT_EVAL_CACHED_INPUT_PRICE_PER_1M = 0.02
 DEFAULT_EVAL_OUTPUT_PRICE_PER_1M = 1.25
 
 
+def _node_bin() -> str:
+    """Return path to node >=20, preferring nvm-installed versions over the system default."""
+    nvm_dir = Path(os.environ.get("NVM_DIR", Path.home() / ".nvm"))
+    versions_dir = nvm_dir / "versions" / "node"
+    if versions_dir.is_dir():
+        candidates = sorted(
+            (d for d in versions_dir.iterdir() if d.name.startswith("v")),
+            key=lambda d: tuple(int(x) for x in d.name.lstrip("v").split(".")),
+            reverse=True,
+        )
+        for candidate in candidates:
+            major = int(candidate.name.lstrip("v").split(".")[0])
+            node = candidate / "bin" / "node"
+            if major >= 20 and node.exists():
+                return str(node)
+    return "node"
+
+
+def _node_env(base: dict) -> dict:
+    """Return a copy of *base* with PATH prepended to include the node >=20 bin dir."""
+    node = _node_bin()
+    if node == "node":
+        return base
+    env = base.copy()
+    bin_dir = str(Path(node).parent)
+    env["PATH"] = bin_dir + os.pathsep + env.get("PATH", "")
+    return env
+
+
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -1089,14 +1118,19 @@ class PiRpcClient:
         pi_repo_root = self.package_dir.parents[1]
         sys.stderr.write("[setup] dist/cli.js not found, running `npm run build` at monorepo root\n")
         sys.stderr.flush()
-        subprocess.run(["npm", "run", "build"], cwd=str(pi_repo_root), check=True)
+        subprocess.run(
+            ["npm", "run", "build"],
+            cwd=str(pi_repo_root),
+            env=_node_env(os.environ.copy()),
+            check=True,
+        )
         if not dist_cli.exists():
             raise RuntimeError(f"Build completed but CLI was not found at {dist_cli}")
         return dist_cli
 
     def _build_command(self) -> List[str]:
         dist_cli = self._ensure_built_cli()
-        cmd = ["node", str(dist_cli), "--mode", "rpc"]
+        cmd = [_node_bin(), str(dist_cli), "--mode", "rpc"]
 
         if self.provider:
             cmd.extend(["--provider", self.provider])
@@ -1117,7 +1151,7 @@ class PiRpcClient:
         if self.proc is not None:
             raise RuntimeError("RPC client already started")
 
-        env = os.environ.copy()
+        env = _node_env(os.environ.copy())
         env["PI_CODING_AGENT_DIR"] = str(self.agent_dir)
         self.command = self._build_command()
         self.proc = subprocess.Popen(

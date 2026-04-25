@@ -15,12 +15,21 @@
 
 ---
 
+## Prerequisites
+
+| Tool | Recommended version | Notes |
+|------|-------------------|-------|
+| **Node / npm** | Node >= 20, npm >= 10 | `setup.sh` auto-installs via nvm if Node < 20 |
+| **Python** | >= 3.10 | managed by [uv](https://github.com/astral-sh/uv) |
+| **Linux bash** | bash >= 5 (Ubuntu 20.04+) | `setup.sh` is the recommended entry point |
+
+---
+
 ## 🌟 Key Features
 
 - 🔍 **BrowseComp-Plus Corpus Search** — Export parquet shards into domain-first text folders for local agentic retrieval.
 - 🤖 **Pi RPC Runner** — Python wrapper around the Pi CLI with real-time event logging, resume support, and artifact compaction.
-- 🧪 **A/B Evaluation Scripts** — Fixed 100-question BCPlus eval with provider-specific launchers (Anthropic, OpenAI, vLLM).
-- 📊 **Analysis Toolkit** — Log parsers and figure generators for tool usage, bash commands, and metrics matrices.
+- 🧪 **A/B Evaluation Scripts** — BrowseComp-Plus eval with provider-specific launchers (Anthropic, OpenAI).
 - ⚙️ **Context Management Ablations** — Runtime levels (`level0`–`level5`) and artifact-only transcript compaction for controlled experiments.
 
 ---
@@ -31,7 +40,6 @@
 - [⚡ Quick Start](#quick-start)
 - [🚀 Running Experiments](#running-experiments)
 - [🎯 Benchmark Evaluation](#benchmark-evaluation)
-- [📊 Analysis](#analysis)
 - [🏗️ Repository Layout](#repository-layout)
 - [🙏 Acknowledgements](#acknowledgements)
 - [📚 Citation](#citation)
@@ -48,15 +56,6 @@
 ```bash
 bash setup.sh
 ```
-
-<details>
-<summary>Windows PowerShell (click to expand)</summary>
-
-```powershell
-.\setup.ps1
-```
-
-</details>
 
 ### Manual Steps
 
@@ -107,27 +106,6 @@ uv run hrci-run-pi-rpc \
   "your question here"
 ```
 
-<details>
-<summary>Windows PowerShell (click to expand)</summary>
-
-```powershell
-# Optional: load keys from .env if not already in environment
-Get-Content .env | ForEach-Object { if ($_ -match '^\s*([^#][^=]+)=(.*)$') { [System.Environment]::SetEnvironmentVariable($matches[1].Trim(), $matches[2].Trim(), "Process") } }
-
-uv run hrci-run-pi-rpc `
-  --provider anthropic `
-  --model claude-sonnet-4-20250514 `
-  --package-dir "$PWD\pi-mono\packages\coding-agent" `
-  --agent-dir "$PWD\pi-mono\.pi\agent" `
-  --cwd "$PWD\corpus\bc_plus_docs\thefourwallmag.wordpress.com" `
-  --tools read,bash `
-  --max-turns 6 `
-  --show-tools `
-  "your question here"
-```
-
-</details>
-
 **Runnable examples** ( Anthropic / OpenAI / vLLM — [setup guide](docs/setup.md#5-optional-configure-a-local-vllm-provider)):
 
 ```bash
@@ -135,17 +113,6 @@ bash scripts/examples/hrci_basic_anthropic_example.sh
 bash scripts/examples/hrci_basic_openai_example.sh
 bash scripts/examples/hrci_basic_vllm_example.sh
 ```
-
-<details>
-<summary>PowerShell examples (click to expand)</summary>
-
-```powershell
-.\scripts\examples\ps\hrci_basic_anthropic_example.ps1
-.\scripts\examples\ps\hrci_basic_openai_example.ps1
-.\scripts\examples\ps\hrci_basic_vllm_example.ps1
-```
-
-</details>
 
 ---
 
@@ -167,23 +134,10 @@ bash scripts/examples/hrci_basic_vllm_example.sh
 ```bash
 PI_CODING_AGENT_DIR="$PWD/pi-mono/.pi/agent" \
 node "$PWD/pi-mono/packages/coding-agent/dist/cli.js" \
-  --model claude-sonnet-4-20250514 \
+  --model gpt-5.4-nano \
   --tools read,bash \
   -p "your question here"
 ```
-
-<details>
-<summary>Windows PowerShell (click to expand)</summary>
-
-```powershell
-$env:PI_CODING_AGENT_DIR = "$PWD\pi-mono\.pi\agent"
-node "$PWD\pi-mono\packages\coding-agent\dist\cli.js" `
-  --model claude-sonnet-4-20250514 `
-  --tools read,bash `
-  -p "your question here"
-```
-
-</details>
 
 Direct examples: `scripts/examples/pi_direct_*`
 
@@ -192,56 +146,44 @@ Direct examples: `scripts/examples/pi_direct_*`
 <a name="benchmark-evaluation"></a>
 ## 🎯 Benchmark Evaluation
 
-Run the fixed 100-question BCPlus evaluator:
+### Knowledge-Intensive QA
 
 ```bash
-# Anthropic
-bash scripts/bcplus_eval/run_bcplus_eval_100_anthropic.sh
-
-# OpenAI
-bash scripts/bcplus_eval/run_bcplus_eval_100_openai.sh
-
-# vLLM
-bash scripts/bcplus_eval/run_bcplus_eval_100_vllm.sh
+bash scripts/qa/run_hotpotqa_dev_sample50.sh
+bash scripts/qa/run_musique_dev_sample50.sh
+bash scripts/qa/run_nq_test_sample50.sh
+bash scripts/qa/run_triviaqa_test_sample50.sh
+bash scripts/qa/run_2wikimultihopqa_dev_sample50.sh
+bash scripts/qa/run_bamboogle_test_sample50.sh
 ```
 
-Runtime-context-level variants: `scripts/bcplus_eval/run_level{0,1,3}.sh`
+### IR Ranking
 
-<details>
-<summary>Windows PowerShell (click to expand)</summary>
-
-```powershell
-# Anthropic
-.\scripts\bcplus_eval\ps\run_bcplus_eval_100_anthropic.ps1
-
-# OpenAI
-.\scripts\bcplus_eval\ps\run_bcplus_eval_100_openai.ps1
-
-# vLLM
-.\scripts\bcplus_eval\ps\run_bcplus_eval_100_vllm.ps1
+```bash
+# BRIGHT
+bash scripts/bright/run_bio.sh
+bash scripts/bright/run_earth_science.sh
+bash scripts/bright/run_economics.sh
+bash scripts/bright/run_robotics.sh
 ```
 
-</details>
+### Agentic Search (BrowseComp-Plus)
+
+```bash
+# Anthropic (default provider)
+uv run python scripts/bcplus_eval/run_bcplus_eval.py
+
+# OpenAI
+bash scripts/bcplus_eval/run_bcplus_eval_openai.sh
+
+# OpenAI with custom runtime level
+bash scripts/bcplus_eval/run_bcplus_eval_openai.sh level1
+
+# Fixed level3
+bash scripts/bcplus_eval/run_L3.sh
+```
 
 See [`docs/benchmark.md`](docs/benchmark.md) for parameters and prompt references.
-
----
-
-<a name="analysis"></a>
-## 📊 Analysis
-
-```bash
-# Tool usage patterns
-uv run python -m hrci.analysis.tool_analysis
-
-# Bash command analysis
-uv run python -m hrci.analysis.bash_analysis
-
-# Metrics matrix
-uv run python -m hrci.analysis.metrics_matrix
-```
-
-See [`docs/analysis.md`](docs/analysis.md) for all modules and custom log paths.
 
 ---
 
@@ -255,28 +197,22 @@ HRCI/
 |   |   |-- export_bc_plus_docs.py   # Parquet → domain-first txt folders
 |   |   |-- pi_rpc_runner.py         # Python RPC runner with event logging
 |   |   `-- pi_system_prompt.py      # Print Pi's default system prompt
-|   `-- analysis/
-|       `-- *.py                     # Figure and log analysis scripts
 |-- docs/
 |   |-- setup.md                     # Detailed installation guide
 |   |-- running.md                   # Running Pi (RPC & direct)
 |   |-- artifacts.md                 # Run artifacts & transcript compaction
-|   |-- analysis.md                  # Analysis scripts reference
 |   |-- benchmark.md                 # Benchmark evaluation guide
 |   `-- pi_agent_benchmark.md        # Sample BrowseComp-Plus prompts
 |-- scripts/
 |   |-- examples/                    # Provider-specific runnable examples (bash)
-|   |-- examples/ps/                 # PowerShell examples
 |   |-- bcplus_eval/                 # 100-question eval launchers
-|   |-- beir/                        # BEIR benchmark scripts
 |   |-- bright/                      # BRIGHT benchmark scripts
 |   `-- qa/                          # QA benchmark scripts
 |-- data/
-|   `-- bcplus_sampled_100_qa.jsonl
+|   `-- dci-bench/                   # Benchmark datasets (auto-downloaded)
 |-- prompts/
 |   `-- system_prompt.txt
 |-- setup.sh                         # One-click setup (Unix/macOS)
-|-- setup.ps1                        # One-click setup (Windows)
 |-- pyproject.toml
 `-- uv.lock
 ```
@@ -285,7 +221,6 @@ HRCI/
 
 - `pi-mono/` — Pi monorepo checkout
 - `corpus/` — parquet shards and exported `bc_plus_docs`
-- `cc-analysis/` — optional evaluation logs
 - `outputs/` — run artifacts and generated figures
 
 ---

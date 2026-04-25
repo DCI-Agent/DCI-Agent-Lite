@@ -15,12 +15,6 @@
 bash setup.sh
 ```
 
-### Windows
-
-```powershell
-.\setup.ps1
-```
-
 ## Manual Setup
 
 ### 1. Clone HRCI
@@ -34,10 +28,8 @@ cd HRCI
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
-# or on Windows: powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 
 brew install ripgrep   # macOS
-# winget install BurntSushi.ripgrep.MSVC  # Windows
 # sudo apt-get install ripgrep            # Linux
 
 uv sync
@@ -71,14 +63,11 @@ cp .env.template .env
 # edit .env with your favorite editor
 ```
 
-`setup.sh` / `setup.ps1` automatically load `.env` if it exists. For manual runs, source it first:
+`setup.sh` automatically loads `.env` if it exists. For manual runs, source it first:
 
 ```bash
 # Unix / macOS
 export $(grep -v '^#' .env | xargs)
-
-# or PowerShell
-Get-Content .env | ForEach-Object { if ($_ -match '^\s*([^#][^=]+)=(.*)$') { $env:$($matches[1].Trim()) = $matches[2].Trim() } }
 ```
 
 You can also set keys inline:
@@ -148,7 +137,7 @@ All corpora are downloaded from the [DCI-Agent/corpus](https://huggingface.co/da
 
 ### Automated (recommended)
 
-`setup.sh` and `setup.ps1` automatically download all subsets if `corpus/` does not exist.
+`setup.sh` automatically downloads all subsets if `corpus/` does not exist.
 
 To download manually:
 

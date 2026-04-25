@@ -16,6 +16,8 @@ fi
 
 set -euo pipefail
 
+level="${1:-level3}"
+
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 QUESTION="Read the files in the current directory. Do not use web search. Use rg instead of grep when searching. Question: In the Bonang Matheba interview where the third-to-last question asks about the origin of the name given to her by radio listeners, what is the interviewer's first name? Answer with just the first name and one supporting file path."
 
@@ -28,5 +30,6 @@ uv run hrci-run-pi-rpc \
   --cwd "$REPO_ROOT/corpus/bc_plus_docs" \
   --tools read,bash \
   --max-turns 6 \
-  --extra-arg="--context-management-level level2" \
+  --eval-answer "Adaku" \
+  --extra-arg="--context-management-level $level" \
   "$QUESTION"

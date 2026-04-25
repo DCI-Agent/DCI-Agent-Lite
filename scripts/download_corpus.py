@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Download DCI-Agent/corpus subsets from HuggingFace."""
+"""Download DCI-Agent/corpus subsets from HuggingFace with idempotency and path aliasing."""
 from __future__ import annotations
 
 import argparse
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -10,31 +11,58 @@ from pathlib import Path
 from huggingface_hub import snapshot_download
 
 
-SUBSETS = [
-    "browsecomp_plus",
-    "bright_biology",
-    "bright_earth_science",
-    "bright_economics",
-    "bright_robotics",
-    "wiki",
+# (repo_subset_name, local_target_path_under_corpus/)
+SUBSET_ALIASES: list[tuple[str, str]] = [
+    ("browsecomp_plus", "browsecomp_plus"),
+    ("bright_biology", "bright_corpus/biology"),
+    ("bright_earth_science", "bright_corpus/earth_science"),
+    ("bright_economics", "bright_corpus/economics"),
+    ("bright_robotics", "bright_corpus/robotics"),
+    ("wiki", "wiki_corpus"),
 ]
 
 
-def download_subset(repo_id: str, subset: str, local_dir: Path) -> bool:
+def is_download_complete(target_dir: Path) -> bool:
+    """Check if target directory exists and contains at least one file."""
+    if not target_dir.exists():
+        return False
+    for child in target_dir.rglob("*"):
+        if child.is_file():
+            return True
+    return False
+
+
+def download_subset(repo_id: str, subset: str, target_dir: Path) -> bool:
+    if is_download_complete(target_dir):
+        print(f"  -> {subset}  (already present at {target_dir})")
+        return True
+
     print(f"  -> {subset}")
+    temp_dir = target_dir.parent / f".tmp_{subset.replace('/', '_')}"
     try:
         snapshot_download(
             repo_id=repo_id,
             repo_type="dataset",
-            local_dir=str(local_dir),
+            local_dir=str(temp_dir),
             allow_patterns=[f"{subset}/*"],
-            local_dir_use_symlinks=False,
         )
-        print(f"     Done: {local_dir / subset}")
-        return True
     except Exception as e:
-        print(f"     Error: {e}", file=sys.stderr)
+        print(f"     Error downloading {subset}: {e}", file=sys.stderr)
+        shutil.rmtree(temp_dir, ignore_errors=True)
         return False
+
+    src_dir = temp_dir / subset
+    if not src_dir.exists():
+        # allow_patterns may have skipped everything; clean up and mark as failed
+        shutil.rmtree(temp_dir, ignore_errors=True)
+        print(f"     Error: subset '{subset}' not found in repo (no files matched)", file=sys.stderr)
+        return False
+
+    target_dir.parent.mkdir(parents=True, exist_ok=True)
+    shutil.move(str(src_dir), str(target_dir))
+    shutil.rmtree(temp_dir, ignore_errors=True)
+    print(f"     Done: {target_dir}")
+    return True
 
 
 def export_browsecomp_plus(local_dir: Path) -> None:
@@ -42,6 +70,9 @@ def export_browsecomp_plus(local_dir: Path) -> None:
     bc_plus_docs = local_dir / "bc_plus_docs"
     if not bc_plus_dir.exists():
         print(f"     Skip export: {bc_plus_dir} not found")
+        return
+    if bc_plus_docs.exists() and any(bc_plus_docs.iterdir()):
+        print(f"     Skip export: {bc_plus_docs} already present")
         return
     print(f"\n  -> Exporting BrowseComp-Plus to {bc_plus_docs}")
     subprocess.run(
@@ -73,8 +104,9 @@ def main() -> None:
     args.local_dir.mkdir(parents=True, exist_ok=True)
 
     failed = []
-    for subset in SUBSETS:
-        if not download_subset(repo_id, subset, args.local_dir):
+    for subset, alias in SUBSET_ALIASES:
+        target_dir = args.local_dir / alias
+        if not download_subset(repo_id, subset, target_dir):
             failed.append(subset)
 
     if failed:

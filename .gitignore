@@ -25,6 +25,7 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+tmp/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -216,3 +217,7 @@ __marimo__/
 /data
 /pi-mono
 /logs*
+.claude/
+.claudeignore
+.codex/
+.codexignore
