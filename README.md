@@ -126,7 +126,7 @@ uv run dci-agent-lite --terminal \
 Answer the following question using only wiki_dump.jsonl in the current directory. Do not use web search. Use rg instead of grep for fast searching. Question: In which street did the Great Fire of London originate?
 ```
 
-3. **Run Programmatically from the CLI**. Remove the `--terminal` flag and pass your task as the final argument:
+3. (Optional) **Run Programmatically from the CLI**. Remove the `--terminal` flag and pass your task as the final argument:
 
 ```bash
 set -a; source .env 2>/dev/null; set +a
@@ -182,21 +182,22 @@ uv run dci-agent-lite \
 <a name="running-experiments"></a>
 ## 🎯 Benchmark DCI-Agent-Lite 
 
+We benchmark DCI-Agent-Lite on the following benchmark suites using OpenAI `gpt-5.4-nano` with `--thinking high`, context management set to `level3`, and a maximum turn budget of 300.
+
+| Data | Data Size | Retrieval Corpus | Corpus Size | Avg. Corpus Len. (words) | Corpus Path |
+|------|-----------|------------------|-------------|--------------------------|-------------|
+| BrowseComp-Plus | 830 | BrowseComp-Plus | 100,195 docs | 5,179 | `corpus/bc_plus_docs/` |
+| BRIGHT-Biology | 103 | BRIGHT-Biology | 57,359 docs | 48 | `corpus/bright_corpus/biology/` |
+| BRIGHT-Earth Science | 116 | BRIGHT-Earth Science | 121,249 docs | 28 | `corpus/bright_corpus/earth_science/` |
+| BRIGHT-Economics | 103 | BRIGHT-Economics | 50,220 docs | 52 | `corpus/bright_corpus/economics/` |
+| BRIGHT-Robotics | 101 | BRIGHT-Robotics | 61,961 docs | 25 | `corpus/bright_corpus/robotics/` |
+| NQ, TriviaQA, Bamboogle, HotpotQA, 2WikiMultiHopQA, MuSiQue | 50 each / 300 total | Wikipedia-18 | 21,015,324 docs | 100 | `corpus/wiki_corpus/` |
+
 
 ### Agentic Search (BrowseComp-Plus)
 
 ```bash
-# Anthropic (default provider)
-uv run python scripts/bcplus_eval/run_bcplus_eval.py
-
-# OpenAI
 bash scripts/bcplus_eval/run_bcplus_eval_openai.sh
-
-# OpenAI with custom runtime level
-bash scripts/bcplus_eval/run_bcplus_eval_openai.sh level1
-
-# Fixed level3
-bash scripts/bcplus_eval/run_L3.sh
 ```
 
 ### Knowledge-Intensive QA
@@ -219,50 +220,6 @@ bash scripts/bright/run_earth_science.sh
 bash scripts/bright/run_economics.sh
 bash scripts/bright/run_robotics.sh
 ```
-
-
-
-See [`docs/benchmark.md`](docs/benchmark.md) for parameters and prompt references.
-
----
-
-<a name="repository-layout"></a>
-## 📁 Repository Layout
-
-```text
-DCI/
-|-- src/dci/
-|   |-- benchmark/
-|   |   |-- export_bc_plus_docs.py   # Parquet → domain-first txt folders
-|   |   |-- pi_rpc_runner.py         # Python RPC runner with event logging
-|   |   `-- pi_system_prompt.py      # Print Pi's default system prompt
-|-- docs/
-|   |-- setup.md                     # Detailed installation guide
-|   |-- running.md                   # Running Pi (RPC & direct)
-|   |-- artifacts.md                 # Run artifacts & transcript compaction
-|   |-- benchmark.md                 # Benchmark evaluation guide
-|   `-- pi_agent_benchmark.md        # Sample BrowseComp-Plus prompts
-|-- scripts/
-|   |-- examples/                    # Provider-specific runnable examples (bash)
-|   |-- bcplus_eval/                 # 100-question eval launchers
-|   |-- bright/                      # BRIGHT benchmark scripts
-|   `-- qa/                          # QA benchmark scripts
-|-- data/
-|   `-- dci-bench/                   # Benchmark datasets (auto-downloaded)
-|-- prompts/
-|   `-- system_prompt.txt
-|-- setup.sh                         # One-click setup (Unix/macOS)
-|-- pyproject.toml
-`-- uv.lock
-```
-
-**Local-only directories** (not tracked):
-
-- `pi-mono/` — Pi monorepo checkout
-- `corpus/` — parquet shards and exported `bc_plus_docs`
-- `outputs/` — run artifacts and generated figures
-
----
 
 <a name="acknowledgements"></a>
 ## 🙏 Acknowledgements

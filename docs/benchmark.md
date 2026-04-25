@@ -4,7 +4,7 @@
 
 The evaluator is `scripts/bcplus_eval/run_bcplus_eval.py`.
 
-Provider-specific launchers:
+### Provider-specific launchers
 
 ```bash
 # Anthropic (default provider)
@@ -12,9 +12,6 @@ uv run python scripts/bcplus_eval/run_bcplus_eval.py
 
 # OpenAI
 bash scripts/bcplus_eval/run_bcplus_eval_openai.sh
-
-# OpenAI with custom runtime level
-bash scripts/bcplus_eval/run_bcplus_eval_openai.sh level1
 ```
 
 ### Runtime-context-level evals
