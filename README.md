@@ -57,7 +57,8 @@
 bash setup.sh
 ```
 
-### Manual Steps
+<details>
+<summary>Manual Steps</summary>
 
 See [`docs/setup.md`](docs/setup.md) for detailed prerequisites, Pi monorepo build instructions, API-key configuration, and vLLM provider setup.
 
@@ -82,6 +83,8 @@ uv run python scripts/download_corpus.py
 #    Benchmark datasets: https://huggingface.co/datasets/DCI-Agent/dci-bench
 uv run python scripts/download_dci_bench.py
 ```
+
+</details>
 
 ---
 
