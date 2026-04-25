@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "hrci"
+name = "dci"
 version = "0.1.0"
 description = "High Resolution Corpus Interaction"
 readme = "README.md"
@@ -21,9 +21,9 @@ dependencies = [
 ]
 
 [project.scripts]
-hrci-export-bc-plus-docs = "hrci.benchmark.export_bc_plus_docs:main"
-hrci-run-pi-rpc = "hrci.benchmark.pi_rpc_runner:main"
-hrci-print-pi-system-prompt = "hrci.benchmark.pi_system_prompt:main"
+dci-export-bc-plus-docs = "dci.benchmark.export_bc_plus_docs:main"
+dci-run-pi-rpc = "dci.benchmark.pi_rpc_runner:main"
+dci-print-pi-system-prompt = "dci.benchmark.pi_system_prompt:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/hrci"]
+packages = ["src/dci"]

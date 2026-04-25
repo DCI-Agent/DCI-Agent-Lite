@@ -1,6 +1,6 @@
 <a name="readme-top"></a>
 
-<h1 align="center">HRCI</h1>
+<h1 align="center">DCI</h1>
 
 <p align="center">
   <b>High-Resolution Corpus Interaction</b> — BrowseComp-Plus local corpus search, reshaping, and evaluation for Pi and Claude Code.
@@ -97,7 +97,7 @@ Run a single question through the Python RPC wrapper (scripts auto-load `.env` a
 # Optional: load keys from .env if not already in environment
 set -a; source .env 2>/dev/null; set +a
 
-uv run hrci-run-pi-rpc \
+uv run dci-run-pi-rpc \
   --provider anthropic \
   --model claude-sonnet-4-20250514 \
   --package-dir "$PWD/pi-mono/packages/coding-agent" \
@@ -112,9 +112,9 @@ uv run hrci-run-pi-rpc \
 **Runnable examples** ( Anthropic / OpenAI / vLLM — [setup guide](docs/setup.md#5-optional-configure-a-local-vllm-provider)):
 
 ```bash
-bash scripts/examples/hrci_basic_anthropic_example.sh
-bash scripts/examples/hrci_basic_openai_example.sh
-bash scripts/examples/hrci_basic_vllm_example.sh
+bash scripts/examples/dci_basic_anthropic_example.sh
+bash scripts/examples/dci_basic_openai_example.sh
+bash scripts/examples/dci_basic_vllm_example.sh
 ```
 
 ---
@@ -126,9 +126,9 @@ bash scripts/examples/hrci_basic_vllm_example.sh
 
 | Task | Command | Docs |
 |------|---------|------|
-| Basic run | `uv run hrci-run-pi-rpc --provider anthropic --model ... "question"` | [`docs/running.md`](docs/running.md#basic-example) |
-| Resume run | `uv run hrci-run-pi-rpc --resume ...` | [`docs/running.md`](docs/running.md#resume-a-run) |
-| Override system prompt | `uv run hrci-run-pi-rpc --system-prompt-file prompts/system_prompt.txt ...` | [`docs/running.md`](docs/running.md#override-system-prompt) |
+| Basic run | `uv run dci-run-pi-rpc --provider anthropic --model ... "question"` | [`docs/running.md`](docs/running.md#basic-example) |
+| Resume run | `uv run dci-run-pi-rpc --resume ...` | [`docs/running.md`](docs/running.md#resume-a-run) |
+| Override system prompt | `uv run dci-run-pi-rpc --system-prompt-file prompts/system_prompt.txt ...` | [`docs/running.md`](docs/running.md#override-system-prompt) |
 | Runtime context ablation | `--extra-arg="--context-management-level level5"` | [`docs/running.md`](docs/running.md#runtime-context-management-levels) |
 | Transcript compaction | `--conversation-clear-tool-results --conversation-externalize-tool-results` | [`docs/artifacts.md`](docs/artifacts.md#artifact-only-transcript-compaction) |
 
@@ -194,8 +194,8 @@ See [`docs/benchmark.md`](docs/benchmark.md) for parameters and prompt reference
 ## 📁 Repository Layout
 
 ```text
-HRCI/
-|-- src/hrci/
+DCI/
+|-- src/dci/
 |   |-- benchmark/
 |   |   |-- export_bc_plus_docs.py   # Parquet → domain-first txt folders
 |   |   |-- pi_rpc_runner.py         # Python RPC runner with event logging
@@ -239,8 +239,8 @@ HRCI/
 ## 📚 Citation
 
 ```bibtex
-@misc{hrci2025,
-  title = {HRCI: High-Resolution Corpus Interaction},
+@misc{dci2025,
+  title = {DCI: High-Resolution Corpus Interaction},
   author = {Placeholder},
   year = {2025}
 }

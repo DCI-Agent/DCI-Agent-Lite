@@ -54,7 +54,7 @@ def parse_args() -> argparse.Namespace:
         "--cwd",
         type=Path,
         default=REPO_ROOT,
-        help="Working directory to embed in the generated prompt. Default: HRCI repo root.",
+        help="Working directory to embed in the generated prompt. Default: DCI repo root.",
     )
     parser.add_argument(
         "--tools",

@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# HRCI One-Click Setup (Unix/macOS)
+# DCI One-Click Setup (Unix/macOS)
 # Usage: bash setup.sh
 
-echo "==> Setting up HRCI environment..."
+echo "==> Setting up DCI environment..."
 
 # Load .env if present
 if [ -f ".env" ]; then
@@ -146,4 +146,4 @@ echo ""
 echo "==> Setup complete!"
 echo "    Next steps:"
 echo "    1. Set your API key(s): cp .env.template .env"
-echo "    2. Run a test:          bash scripts/examples/hrci_basic_anthropic_example.sh"
+echo "    2. Run a test:          bash scripts/examples/dci_basic_anthropic_example.sh"

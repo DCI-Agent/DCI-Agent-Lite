@@ -6,7 +6,7 @@ Each run produces the following under `outputs/runs/<timestamp>/`:
 outputs/runs/<timestamp>/
   events.jsonl              # raw RPC event stream, appended in real time
   state.json                # low-level debug snapshot, rewritten after each event
-  conversation_full.json    # full normalized transcript without HRCI-side compaction
+  conversation_full.json    # full normalized transcript without DCI-side compaction
   conversation.json         # cleaner transcript view, optionally compacted
   latest_model_context.json # most recent context snapshot prepared for the next model call
   final.txt                 # final assistant answer
@@ -20,7 +20,7 @@ If you pass `--system-prompt-file`, both `conversation_full.json` and `conversat
 
 The runner supports Claude Code-inspired transcript compaction for `conversation.json`. These are **independent and all off by default**.
 
-**Important:** this does **not** change Pi's runtime behavior. It only changes how HRCI stores the processed transcript view on disk. If your question is "does context management affect performance or behavior?", this layer is usually not the one you want.
+**Important:** this does **not** change Pi's runtime behavior. It only changes how DCI stores the processed transcript view on disk. If your question is "does context management affect performance or behavior?", this layer is usually not the one you want.
 
 Use it only when you want:
 
@@ -50,7 +50,7 @@ Use it only when you want:
 
 ```bash
 # level1
-uv run hrci-run-pi-rpc \
+uv run dci-run-pi-rpc \
   --conversation-clear-tool-results \
   --conversation-externalize-tool-results \
   --provider anthropic \
@@ -58,7 +58,7 @@ uv run hrci-run-pi-rpc \
   "your question here"
 
 # level5
-uv run hrci-run-pi-rpc \
+uv run dci-run-pi-rpc \
   --conversation-clear-tool-results \
   --conversation-clear-tool-results-keep-last 0 \
   --conversation-externalize-tool-results \
@@ -73,4 +73,4 @@ If tool outputs are bloating `conversation.json`, start with `level1`. If the tr
 
 Runnable examples in `scripts/examples/`:
 
-- `hrci_conversation_level1.sh` through `hrci_conversation_level5.sh`
+- `dci_conversation_level1.sh` through `dci_conversation_level5.sh`

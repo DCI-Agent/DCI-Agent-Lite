@@ -1312,7 +1312,7 @@ def parse_args() -> argparse.Namespace:
         "--cwd",
         type=Path,
         default=REPO_ROOT,
-        help="Working directory for the agent subprocess. Defaults to the HRCI repo root.",
+        help="Working directory for the agent subprocess. Defaults to the DCI repo root.",
     )
     parser.add_argument(
         "--agent-dir",

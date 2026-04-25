@@ -5,7 +5,7 @@
 Main entry point:
 
 ```bash
-uv run hrci-run-pi-rpc
+uv run dci-run-pi-rpc
 ```
 
 The runner assumes your built Pi checkout is at `./pi-mono` unless you override `--package-dir` and `--agent-dir`.
@@ -19,7 +19,7 @@ By default:
 ### Basic example
 
 ```bash
-uv run hrci-run-pi-rpc \
+uv run dci-run-pi-rpc \
   --provider anthropic \
   --model claude-sonnet-4-20250514 \
   --package-dir "$PWD/pi-mono/packages/coding-agent" \
@@ -33,16 +33,16 @@ uv run hrci-run-pi-rpc \
 
 Provider-specific runnable examples live under `scripts/examples/`:
 
-- Anthropic: `hrci_basic_anthropic_example.sh`
-- OpenAI: `hrci_basic_openai_example.sh`
-- vLLM: `hrci_basic_vllm_example.sh`
+- Anthropic: `dci_basic_anthropic_example.sh`
+- OpenAI: `dci_basic_openai_example.sh`
+- vLLM: `dci_basic_vllm_example.sh`
 
 ### Resume a run
 
 Resume by pointing directly at a run directory:
 
 ```bash
-uv run hrci-run-pi-rpc \
+uv run dci-run-pi-rpc \
   --resume "$PWD/outputs/runs/bonang-test" \
   --provider anthropic \
   --model claude-sonnet-4-20250514 \
@@ -54,7 +54,7 @@ uv run hrci-run-pi-rpc \
 Or resume the same directory named in `--output-dir`:
 
 ```bash
-uv run hrci-run-pi-rpc \
+uv run dci-run-pi-rpc \
   --output-dir "$PWD/outputs/runs/bonang-test" \
   --resume \
   --provider anthropic \
@@ -69,7 +69,7 @@ uv run hrci-run-pi-rpc \
 ### Override system prompt
 
 ```bash
-uv run hrci-run-pi-rpc \
+uv run dci-run-pi-rpc \
   --system-prompt-file "$PWD/prompts/system_prompt.txt" \
   --provider anthropic \
   --model claude-sonnet-4-20250514 \
@@ -85,58 +85,58 @@ Quick decision rule:
 - Use runtime levels for **experiments, ablations, and model-behavior comparisons** (for artifact-only levels see [artifacts.md](artifacts.md#optimize-levels))
 - Use conversation artifact compaction (see [artifacts.md](artifacts.md#artifact-only-transcript-compaction)) only when you want smaller saved files
 
-### Through `hrci-run-pi-rpc`
+### Through `dci-run-pi-rpc`
 
 Use `--extra-arg` to forward the runtime profile into Pi:
 
 ```bash
 # level0: current upstream runtime behavior
-uv run hrci-run-pi-rpc \
+uv run dci-run-pi-rpc \
   --provider anthropic \
   --model claude-sonnet-4-20250514 \
   --extra-arg="--context-management-level level0" \
   "your question here"
 
 # level1: only truncate very large tool results
-uv run hrci-run-pi-rpc \
+uv run dci-run-pi-rpc \
   --provider anthropic \
   --model claude-sonnet-4-20250514 \
   --extra-arg="--context-management-level level1" \
   "your question here"
 
 # level2: stricter truncation
-uv run hrci-run-pi-rpc \
+uv run dci-run-pi-rpc \
   --provider anthropic \
   --model claude-sonnet-4-20250514 \
   --extra-arg="--context-management-level level2" \
   "your question here"
 
 # level3: truncation + micro-compaction
-uv run hrci-run-pi-rpc \
+uv run dci-run-pi-rpc \
   --provider anthropic \
   --model claude-sonnet-4-20250514 \
   --extra-arg="--context-management-level level3" \
   "your question here"
 
 # legacy / level4: closest to the older pi runtime
-uv run hrci-run-pi-rpc \
+uv run dci-run-pi-rpc \
   --provider anthropic \
   --model claude-sonnet-4-20250514 \
   --extra-arg="--context-management-level legacy" \
   "your question here"
 
 # level5: most aggressive runtime profile
-uv run hrci-run-pi-rpc \
+uv run dci-run-pi-rpc \
   --provider anthropic \
   --model claude-sonnet-4-20250514 \
   --extra-arg="--context-management-level level5" \
   "your question here"
 ```
 
-Runnable example for all levels: `scripts/examples/hrci_runtime_context_example.sh`
+Runnable example for all levels: `scripts/examples/dci_runtime_context_example.sh`
 
 ```bash
-bash scripts/examples/hrci_runtime_context_example.sh level3
+bash scripts/examples/dci_runtime_context_example.sh level3
 ```
 
 Recommended meanings:

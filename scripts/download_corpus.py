@@ -77,7 +77,7 @@ def export_browsecomp_plus(local_dir: Path) -> None:
     print(f"\n  -> Exporting BrowseComp-Plus to {bc_plus_docs}")
     subprocess.run(
         [
-            sys.executable, "-m", "hrci.benchmark.export_bc_plus_docs",
+            sys.executable, "-m", "dci.benchmark.export_bc_plus_docs",
             "--source-dir", str(bc_plus_dir),
             "--output-dir", str(bc_plus_docs),
         ],

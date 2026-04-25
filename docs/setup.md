@@ -17,11 +17,11 @@ bash setup.sh
 
 ## Manual Setup
 
-### 1. Clone HRCI
+### 1. Clone DCI
 
 ```bash
-git clone <your-hrci-repo-url> HRCI
-cd HRCI
+git clone <your-dci-repo-url> DCI
+cd DCI
 ```
 
 ### 2. Create the Python environment
@@ -171,7 +171,7 @@ snapshot_download('DCI-Agent/corpus', repo_type='dataset', local_dir='corpus', a
 After downloading, export the BrowseComp-Plus parquet into domain-first text folders:
 
 ```bash
-uv run hrci-export-bc-plus-docs --source-dir "$PWD/corpus/browsecomp_plus" --output-dir "$PWD/corpus/bc_plus_docs"
+uv run dci-export-bc-plus-docs --source-dir "$PWD/corpus/browsecomp_plus" --output-dir "$PWD/corpus/bc_plus_docs"
 ```
 
 This creates `corpus/bc_plus_docs` where:

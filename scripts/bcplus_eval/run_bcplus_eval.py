@@ -24,7 +24,7 @@ SCRIPT_PATH = Path(__file__).resolve()
 REPO_ROOT = SCRIPT_PATH.parents[2]
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
-from hrci.benchmark.pi_rpc_runner import judge_answer_sync
+from dci.benchmark.pi_rpc_runner import judge_answer_sync
 
 DEFAULT_DATASET_PATH = REPO_ROOT / "data" / "bcplus_qa.jsonl"
 DEFAULT_OUTPUT_ROOT = REPO_ROOT / "outputs" / "bcplus_eval"
@@ -55,7 +55,7 @@ def utc_now() -> str:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Run the BrowseComp-Plus eval set with hrci-run-pi-rpc, "
+            "Run the BrowseComp-Plus eval set with dci-run-pi-rpc, "
             "grade each final answer with OpenAI, and write per-question plus aggregate metrics."
         )
     )
@@ -100,19 +100,19 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--system-prompt-file",
         type=Path,
-        help="Optional text file forwarded to hrci-run-pi-rpc --system-prompt-file.",
+        help="Optional text file forwarded to dci-run-pi-rpc --system-prompt-file.",
     )
     parser.add_argument(
         "--append-system-prompt-file",
         type=Path,
-        help="Optional text file forwarded to hrci-run-pi-rpc --append-system-prompt-file.",
+        help="Optional text file forwarded to dci-run-pi-rpc --append-system-prompt-file.",
     )
     parser.add_argument(
         "--pi-extra-arg",
         action="append",
         default=[],
         help=(
-            "Extra CLI arg or quoted arg string forwarded to pi through hrci-run-pi-rpc. "
+            "Extra CLI arg or quoted arg string forwarded to pi through dci-run-pi-rpc. "
             'Example: --pi-extra-arg="--thinking off"'
         ),
     )
@@ -560,7 +560,7 @@ def build_run_command(
     cmd: List[str] = [
         "uv",
         "run",
-        "hrci-run-pi-rpc",
+        "dci-run-pi-rpc",
         "--provider",
         args.provider,
         "--model",

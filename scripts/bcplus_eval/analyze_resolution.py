@@ -63,7 +63,7 @@ class Observation:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Analyze BrowseComp-Plus HRCI trajectories and estimate realized retrieval resolution "
+            "Analyze BrowseComp-Plus DCI trajectories and estimate realized retrieval resolution "
             "from saved conversation artifacts."
         )
     )

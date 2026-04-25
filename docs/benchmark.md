@@ -50,7 +50,7 @@ Common parameters used in the eval scripts:
 
 Sample BrowseComp-Plus prompts are in [`docs/pi_agent_benchmark.md`](pi_agent_benchmark.md).
 
-For HRCI local runs, replace any original corpus placeholder path with:
+For DCI local runs, replace any original corpus placeholder path with:
 
 ```text
 $REPO_ROOT/corpus/bc_plus_docs
