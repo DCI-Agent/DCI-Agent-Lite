@@ -17,6 +17,7 @@ dependencies = [
     "numpy",
     "pyarrow",
     "scipy",
+    "tqdm",
 ]
 
 [project.scripts]

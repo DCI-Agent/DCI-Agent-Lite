@@ -7,6 +7,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 import pyarrow.parquet as pq
+from tqdm import tqdm
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -113,27 +114,38 @@ def main() -> None:
     if not parquet_files:
         raise SystemExit(f"No parquet files found under {source_dir}")
     total = 0
+    total_docs = sum(pq.ParquetFile(parquet_file).metadata.num_rows for parquet_file in parquet_files)
 
-    for parquet_file in parquet_files:
-        pf = pq.ParquetFile(parquet_file)
-        for row_group_idx in range(pf.num_row_groups):
-            table = pf.read_row_group(row_group_idx, columns=["docid", "text", "url"])
-            for row in table.to_pylist():
-                docid = str(row["docid"])
-                text = row["text"]
-                url = row["url"]
+    progress = tqdm(
+        total=total_docs,
+        desc="Exporting BrowseComp-Plus docs",
+        unit="doc",
+    )
 
-                domain = get_domain(url)
-                title = extract_title(text)
-                filename = build_filename(title, url, docid)
+    try:
+        for parquet_file in parquet_files:
+            pf = pq.ParquetFile(parquet_file)
+            for row_group_idx in range(pf.num_row_groups):
+                table = pf.read_row_group(row_group_idx, columns=["docid", "text", "url"])
+                for row in table.to_pylist():
+                    docid = str(row["docid"])
+                    text = row["text"]
+                    url = row["url"]
 
-                target_dir = output_dir / domain
-                target_dir.mkdir(parents=True, exist_ok=True)
-                target_path = unique_path(target_dir / filename, docid, text)
-                target_path.write_text(text, encoding="utf-8")
-                total += 1
+                    domain = get_domain(url)
+                    title = extract_title(text)
+                    filename = build_filename(title, url, docid)
 
-        print(f"exported {parquet_file.name}")
+                    target_dir = output_dir / domain
+                    target_dir.mkdir(parents=True, exist_ok=True)
+                    target_path = unique_path(target_dir / filename, docid, text)
+                    target_path.write_text(text, encoding="utf-8")
+                    total += 1
+                    progress.update(1)
+
+            progress.write(f"exported {parquet_file.name}")
+    finally:
+        progress.close()
 
     print(f"done: exported {total} documents to {output_dir}")
 
