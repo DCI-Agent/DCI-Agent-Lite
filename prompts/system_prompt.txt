@@ -15,6 +15,6 @@ Pi documentation (read only when the user asks about pi itself, its SDK, extensi
 - Main documentation: pi-mono/packages/coding-agent/README.md
 - Additional docs: pi-mono/packages/coding-agent/docs
 - Examples: pi-mono/packages/coding-agent/examples (extensions, custom tools, SDK)
-- When asked about: extensions (docs/extensions.md, examples/extensions/), themes (docs/themes.md), skills (docs/skills.md), prompt templates (docs/prompt-templates.md), TUI components (docs/tui.md), keybindings (docs/keybindings.md), SDK integrations (docs/sdk.md), custom providers (docs/custom-provider.md), adding models (docs/models.md), pi packages (docs/packages.md)
+- When asked about: extensions (pi-mono/packages/coding-agent/docs/extensions.md, examples/extensions/), themes (pi-mono/packages/coding-agent/docs/themes.md), skills (pi-mono/packages/coding-agent/docs/skills.md), prompt templates (pi-mono/packages/coding-agent/docs/prompt-templates.md), TUI components (pi-mono/packages/coding-agent/docs/tui.md), keybindings (pi-mono/packages/coding-agent/docs/keybindings.md), SDK integrations (pi-mono/packages/coding-agent/docs/sdk.md), custom providers (pi-mono/packages/coding-agent/docs/custom-provider.md), adding models (pi-mono/packages/coding-agent/docs/models.md), pi packages (pi-mono/packages/coding-agent/docs/packages.md)
 - When working on pi topics, read the docs and examples, and follow .md cross-references before implementing
 - Always read pi .md files completely and follow links to related docs (e.g., tui.md for TUI API details)

@@ -1,36 +1,34 @@
 <a name="readme-top"></a>
 
-<h1 align="center">DCI</h1>
+<h1 align="center">DCI-Agent-Lite</h1>
 
 <p align="center">
-  <b>High-Resolution Corpus Interaction</b> — BrowseComp-Plus local corpus search, reshaping, and evaluation for Pi and Claude Code.
-</p>
-
-<p align="center">
-  <a href="#"><img src="https://img.shields.io/badge/Python-3.10%2B-blue.svg?logo=python" alt="Python 3.10+"></a>
-  <a href="#"><img src="https://img.shields.io/badge/Node-20%2B-green.svg?logo=nodedotjs" alt="Node 20+"></a>
-  <a href="#"><img src="https://img.shields.io/badge/UV-Required-purple.svg?logo=astral" alt="UV Required"></a>
-  <a href="docs/setup.md"><img src="https://img.shields.io/badge/Docs-Setup-orange.svg?logo=readthedocs" alt="Docs"></a>
+  Beyond Semantic Similarity: Rethinking Retrieval for Agentic Search via Direct Corpus Interaction
 </p>
 
 ---
 
-## Prerequisites
+## 💥 Introduction
 
-| Tool | Recommended version | Notes |
-|------|-------------------|-------|
-| **Node / npm** | Node >= 20, npm >= 10 | `setup.sh` auto-installs via nvm if Node < 20 |
-| **Python** | >= 3.10 | managed by [uv](https://github.com/astral-sh/uv) |
-| **Linux bash** | bash >= 5 (Ubuntu 20.04+) | `setup.sh` is the recommended entry point |
+**DCI** is a direct corpus interaction paradigm for agentic search. Instead of querying a fixed semantic retriever or retrieval API, the agent searches the raw corpus directly with terminal tools. This lets the agent freely compose search primitives and interact with the corpus as an open research environment. It also substantially simplifies the overall retrieval system. 
 
----
+**DCI-Agent-Lite** is the minimal open implementation of this paradigm, built on [Pi](https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent) with bash tools and lightweight context management for long-horizon deep research. With `GPT-5.4-nano`, it achieves an impressive 62.9% accuracy on BrowseComp-Plus, surpassing retrieval-agents powered by `GPT-5.2`, `Claude-Sonnet-4.6`, `Qwen3.5-122B`, and `GLM-4.7`.
+
+<div align="center">
+  <img src="assets/imgs/teaser.png" alt="OpenResearcher Teaser" width="100%" style="max-width: 850px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+</div>
+
+<br>
+
+## 🏆 Main Results
+
+
 
 ## 🌟 Key Features
-
-- 🔍 **BrowseComp-Plus Corpus Search** — Export parquet shards into domain-first text folders for local agentic retrieval.
-- 🤖 **Pi RPC Runner** — Python wrapper around the Pi CLI with real-time event logging, resume support, and artifact compaction.
-- 🧪 **A/B Evaluation Scripts** — BrowseComp-Plus eval with provider-specific launchers (Anthropic, OpenAI).
-- ⚙️ **Context Management Ablations** — Runtime levels (`level0`–`level5`) and artifact-only transcript compaction for controlled experiments.
+- 🔒 **Your private deep-research assistant**: Point DCI-Agent-Lite at a local corpus and start immediately. It searches, inspects, cross-checks, and answers from your own knowledge base without sending documents to a hosted retrieval service.
+- ⚡ **High-resolution, zero-index retrieval**: No embeddings, vector databases, or offline index builds. The agent searches raw files directly with terminal commands like `rg`, `find`, and `sed`, so it can start immediately and maintain fine-grained control over the knowledge base.
+- 🛠️ **Minimal harness, long-horizon power**: Built on [Pi](https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent) with only bash tools and lightweight context management, DCI-Agent-Lite is small enough to hack and strong enough for serious deep research runs.
+- 🚀 **Remarkable agentic-search performance**: DCI-Agent-Lite with GPT-5.4-nano beats top baselines across 13 benchmarks, spanning BrowseComp-Plus, knowledge-intensive QA, and IR ranking.
 
 ---
 
@@ -38,7 +36,6 @@
 
 - [⚙️ Setup](#setup)
 - [⚡ Quick Start](#quick-start)
-- [CLI Reference](docs/cli-reference.md)
 - [🚀 Running Experiments](#running-experiments)
 - [🎯 Benchmark Evaluation](#benchmark-evaluation)
 - [🏗️ Repository Layout](#repository-layout)
@@ -61,7 +58,7 @@ bash setup.sh
 <details>
 <summary>Manual Steps</summary>
 
-See [`docs/setup.md`](docs/setup.md) for detailed prerequisites, repo build instructions, API-key configuration, and vLLM provider setup.
+See [`assets/docs/setup.md`](assets/docs/setup.md) for detailed prerequisites, repo build instructions, API-key configuration, and vLLM provider setup.
 
 Quick manual path:
 
@@ -141,7 +138,7 @@ uv run dci-agent-lite \
 
 Programmatic runs save artifacts under `outputs/runs/<timestamp>/`. The final answer is in `final.txt`, the original question is in `question.txt`, and the full trajectory is in `conversation_full.json`. To choose a specific location, pass `--output-dir path/to/run`. 
 
-More runnable examples for OpenAI, Anthropic and vLLM are available in [`scripts/examples/`](scripts/examples/) as `dci_basic_*.sh`. See the [setup guide](docs/setup.md#5-optional-configure-a-local-vllm-provider) for vLLM configuration.
+More runnable examples for OpenAI, Anthropic and vLLM are available in [`scripts/examples/`](scripts/examples/) as `dci_basic_*.sh`. See the [setup guide](assets/docs/setup.md#5-optional-configure-a-local-vllm-provider) for vLLM configuration.
 
 
 ## 🚀 Context Management Strategies
