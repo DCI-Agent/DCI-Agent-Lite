@@ -14,12 +14,14 @@ from huggingface_hub import snapshot_download
 # (repo_subset_name, local_target_path_under_corpus/)
 SUBSET_ALIASES: list[tuple[str, str]] = [
     ("browsecomp_plus", "browsecomp_plus"),
-    ("bright_biology", "bright_corpus/biology"),
-    ("bright_earth_science", "bright_corpus/earth_science"),
-    ("bright_economics", "bright_corpus/economics"),
-    ("bright_robotics", "bright_corpus/robotics"),
+    ("bright_biology", "bright_corpus_raw/biology"),
+    ("bright_earth_science", "bright_corpus_raw/earth_science"),
+    ("bright_economics", "bright_corpus_raw/economics"),
+    ("bright_robotics", "bright_corpus_raw/robotics"),
     ("wiki", "wiki_corpus"),
 ]
+
+BRIGHT_SUBSETS = ("biology", "earth_science", "economics", "robotics")
 
 
 def is_download_complete(target_dir: Path) -> bool:
@@ -85,6 +87,58 @@ def export_browsecomp_plus(local_dir: Path) -> None:
     )
 
 
+def migrate_legacy_bright_parquet(local_dir: Path) -> None:
+    legacy_root = local_dir / "bright_corpus"
+    raw_root = local_dir / "bright_corpus_raw"
+    for subset in BRIGHT_SUBSETS:
+        legacy_dir = legacy_root / subset
+        raw_dir = raw_root / subset
+        if is_download_complete(raw_dir):
+            continue
+        parquet_files = sorted(legacy_dir.glob("*.parquet")) if legacy_dir.exists() else []
+        if not parquet_files:
+            continue
+        raw_dir.mkdir(parents=True, exist_ok=True)
+        for parquet_file in parquet_files:
+            target = raw_dir / parquet_file.name
+            if not target.exists():
+                shutil.copy2(parquet_file, target)
+        print(f"  -> Migrated legacy BRIGHT parquet for {subset} to {raw_dir}")
+
+
+def export_bright_corpus(local_dir: Path) -> None:
+    bright_raw_dir = local_dir / "bright_corpus_raw"
+    bright_docs_dir = local_dir / "bright_corpus"
+    if not bright_raw_dir.exists():
+        print(f"     Skip export: {bright_raw_dir} not found")
+        return
+
+    missing_exports = []
+    for subset in BRIGHT_SUBSETS:
+        raw_subset_dir = bright_raw_dir / subset
+        marker_path = bright_docs_dir / subset / ".dci_export_complete"
+        if not marker_path.exists() and is_download_complete(raw_subset_dir):
+            missing_exports.append(subset)
+
+    if not missing_exports:
+        print(f"     Skip export: {bright_docs_dir} already has document folders")
+        return
+
+    print(f"\n  -> Exporting BRIGHT corpus to document folders: {', '.join(missing_exports)}")
+    command = [
+        sys.executable, "-m", "dci.benchmark.export_bright_docs",
+        "--source-root", str(bright_raw_dir),
+        "--output-root", str(bright_docs_dir),
+    ]
+    for subset in missing_exports:
+        command.extend(["--subset", subset])
+    subprocess.run(command, check=True)
+
+    for subset in missing_exports:
+        for parquet_file in (bright_docs_dir / subset).glob("*.parquet"):
+            parquet_file.unlink()
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Download DCI-Agent/corpus datasets")
     parser.add_argument(
@@ -96,12 +150,13 @@ def main() -> None:
     parser.add_argument(
         "--skip-export",
         action="store_true",
-        help="Skip exporting browsecomp_plus to bc_plus_docs",
+        help="Skip exporting parquet corpora to document folders",
     )
     args = parser.parse_args()
 
     repo_id = "DCI-Agent/corpus"
     args.local_dir.mkdir(parents=True, exist_ok=True)
+    migrate_legacy_bright_parquet(args.local_dir)
 
     failed = []
     for subset, alias in SUBSET_ALIASES:
@@ -116,6 +171,7 @@ def main() -> None:
 
     if not args.skip_export:
         export_browsecomp_plus(args.local_dir)
+        export_bright_corpus(args.local_dir)
 
     print("\n==> All datasets downloaded successfully!")
 

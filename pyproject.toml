@@ -22,6 +22,7 @@ dependencies = [
 
 [project.scripts]
 dci-export-bc-plus-docs = "dci.benchmark.export_bc_plus_docs:main"
+dci-export-bright-docs = "dci.benchmark.export_bright_docs:main"
 dci-agent-lite = "dci.benchmark.pi_rpc_runner:main"
 dci-run-pi-rpc = "dci.benchmark.pi_rpc_runner:main"
 dci-print-pi-system-prompt = "dci.benchmark.pi_system_prompt:main"

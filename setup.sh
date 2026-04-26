@@ -89,10 +89,21 @@ fi
 
 # 5. Download datasets from HuggingFace
 
+_has_files_at_depth() {
+    local dir="$1"
+    local min_depth="$2"
+    [ -d "$dir" ] && find "$dir" -mindepth "$min_depth" -type f -print -quit | grep -q .
+}
+
 # 5a. Corpus (DCI-Agent/corpus)
-if [ ! -d "corpus/browsecomp_plus" ]; then
+if ! _has_files_at_depth "corpus/browsecomp_plus" 1 \
+    || ! _has_files_at_depth "corpus/bc_plus_docs" 2 \
+    || [ ! -f "corpus/bright_corpus/biology/.dci_export_complete" ] \
+    || [ ! -f "corpus/bright_corpus/earth_science/.dci_export_complete" ] \
+    || [ ! -f "corpus/bright_corpus/economics/.dci_export_complete" ] \
+    || [ ! -f "corpus/bright_corpus/robotics/.dci_export_complete" ]; then
     echo ""
-    echo "==> Downloading corpus from HuggingFace (DCI-Agent/corpus)..."
+    echo "==> Downloading/exporting corpus from HuggingFace (DCI-Agent/corpus)..."
     echo "    Note: This dataset is gated. Run 'huggingface-cli login' first if needed."
     uv run python scripts/download_corpus.py || {
         echo ""
@@ -102,7 +113,7 @@ if [ ! -d "corpus/browsecomp_plus" ]; then
     }
 else
     echo ""
-    echo "==> Corpus already present in corpus/, skipping download."
+    echo "==> Corpus already present and exported in corpus/, skipping download."
 fi
 
 # 5b. Benchmark datasets (DCI-Agent/dci-bench)
