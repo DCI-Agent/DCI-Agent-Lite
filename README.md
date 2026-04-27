@@ -4,9 +4,9 @@
   <img src="assets/imgs/banner.svg" alt="DCI-Agent-Lite" height="120">
 </p>
 
-<p align="center">
+<h3 align="center">
   Beyond Semantic Similarity: Rethinking Retrieval for Agentic Search via Direct Corpus Interaction
-</p>
+</h3>
 
 ---
 
