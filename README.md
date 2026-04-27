@@ -8,6 +8,14 @@
   Beyond Semantic Similarity: Rethinking Retrieval for Agentic Search via Direct Corpus Interaction
 </h3>
 
+<div align="center">
+  <a href="#"><img src="https://img.shields.io/badge/arXiv-B31B1B?style=for-the-badge&logo=arXiv&logoColor=white" alt="arXiv"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Twitter-000000?style=for-the-badge&logo=X&logoColor=white" alt="Twitter"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Github-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Demo-F97316.svg?style=for-the-badge&logo=gradio&logoColor=white" alt="Demo"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Eval%20Logs-755BB4?style=for-the-badge&logo=google-sheets&logoColor=white" alt="Eval Logs"></a>
+</div>
+
 ---
 
 ## 💥 Introduction
@@ -24,7 +32,30 @@
 
 ## 🏆 Main Results
 
+Across agentic search, knowledge-intensive QA, and IR ranking, DCI-Agent-Lite consistently demonstrates that direct corpus interaction is a simple and effective alternative to fixed retrieval pipelines.
 
+**Table 1 -** Knowledge-intensive QA results across evaluated models and retrieval settings.
+
+<div align="center">
+  <img src="assets/imgs/table_qa.png" alt="Knowledge-intensive QA results" width="100%" style="max-width: 850px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+</div>
+
+**Table 2 -** IR ranking results across evaluated models and retrieval settings.
+
+<div align="center">
+  <img src="assets/imgs/table_ir.png" alt="IR ranking results" width="100%" style="max-width: 850px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+</div>
+
+<details>
+<summary><strong>BrowseComp-Plus results and Bash intent analysis</strong></summary>
+
+Left: Results on all 830 BrowseComp-Plus questions with the Sonnet 4.6 backbone, comparing DCI-Agent-CC to the retrieval agent using Qwen3-Embedding-8B as the retriever. Right: Distribution of tool calls and Bash intents across all DCI-Agent-CC runs, illustrating how the dominant Bash tool decomposes into ten concrete command intents.
+
+<div align="center">
+  <img src="assets/imgs/bash_ribbon_fig.png" alt="BrowseComp-Plus results and Bash intent analysis" width="100%" style="max-width: 850px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+</div>
+
+</details>
 
 ## 🌟 Key Features
 - 🔒 **Your private deep-research assistant**: Point DCI-Agent-Lite at a local corpus and start immediately. It searches, inspects, cross-checks, and answers from your own knowledge base without sending documents to a hosted retrieval service.
@@ -152,6 +183,15 @@ It uses three simple strategies:
 - **Truncation** shortens large tool results in each turn.
 - **Compaction** keeps recent turns and replaces older tool results with placeholders.
 - **Summarization** summarizes older history when the context gets crowded.
+
+<details>
+<summary><strong>Context management illustration</strong></summary>
+
+<div align="center">
+  <img src="assets/imgs/context_management.png" alt="Context management strategies: truncation, compaction, and summarization" width="100%" style="max-width: 900px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+</div>
+
+</details>
 
 The runtime levels move from no context management to more aggressive compression:
 
