@@ -1,7 +1,7 @@
 <a name="readme-top"></a>
 
 <h1 align="center">
-  <img src="assets/imgs/logo.png" alt="Logo" width="40" style="vertical-align: middle; margin-right: 12px;">
+  <img src="assets/imgs/logo.png" alt="Logo" width="88" style="vertical-align: middle; margin-right: 12px;">
   DCI-Agent-Lite
 </h1>
 
