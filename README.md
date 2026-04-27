@@ -37,13 +37,13 @@ Across agentic search, knowledge-intensive QA, and IR ranking, DCI-Agent-Lite co
 - **Table 1 -** Knowledge-intensive QA results across evaluated models and retrieval settings.
 
 <div align="center">
-  <img src="assets/imgs/table_qa.png" alt="Knowledge-intensive QA results" width="100%" style="max-width: 850px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+  <img src="assets/imgs/table_qa.png" alt="Knowledge-intensive QA results" width="85%" style="max-width: 850px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
 </div>
 
 - **Table 2 -** IR ranking results across evaluated models and retrieval settings.
 
 <div align="center">
-  <img src="assets/imgs/table_ir.png" alt="IR ranking results" width="100%" style="max-width: 850px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+  <img src="assets/imgs/table_ir.png" alt="IR ranking results" width="85%" style="max-width: 850px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
 </div>
 
 <details>
