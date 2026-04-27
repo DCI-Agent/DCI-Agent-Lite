@@ -1,6 +1,9 @@
 <a name="readme-top"></a>
 
-<h1 align="center">DCI-Agent-Lite</h1>
+<h1 align="center">
+  <img src="assets/imgs/logo.png" alt="Logo" width="40" style="vertical-align: middle; margin-right: 12px;">
+  DCI-Agent-Lite
+</h1>
 
 <p align="center">
   Beyond Semantic Similarity: Rethinking Retrieval for Agentic Search via Direct Corpus Interaction
