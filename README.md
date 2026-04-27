@@ -1,7 +1,7 @@
 <a name="readme-top"></a>
 
 <p align="center">
-  <img src="assets/imgs/banner.svg" alt="DCI-Agent-Lite" height="80">
+  <img src="assets/imgs/banner.svg" alt="DCI-Agent-Lite" height="88">
 </p>
 
 <p align="center">
