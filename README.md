@@ -10,10 +10,10 @@
 </h2>
 
 <div align="center">
-  <a href="#"><img src="https://img.shields.io/badge/arXiv-B31B1B?style=flat-square&logo=arXiv&logoColor=white" alt="arXiv"></a>
-  <a href="#"><img src="https://img.shields.io/badge/Twitter-000000?style=flat-square&logo=X&logoColor=white" alt="Twitter"></a>
-  <a href="#"><img src="https://img.shields.io/badge/Hugging%20Face-FFD21E?style=flat-square&logo=huggingface&logoColor=white" alt="Hugging Face"></a>
-  <a href="#"><img src="https://img.shields.io/badge/Demo-F97316.svg?style=flat-square&logo=gradio&logoColor=white" alt="Demo"></a>
+  <a href="#"><img src="https://img.shields.io/badge/arXiv-B31B1B?style=for-the-badge&logo=arXiv&logoColor=white" alt="arXiv"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Twitter-000000?style=for-the-badge&logo=X&logoColor=white" alt="Twitter"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Hugging%20Face-FFD21E?style=for-the-badge&logo=huggingface&logoColor=white" alt="Hugging Face"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Demo-F97316.svg?style=for-the-badge&logo=gradio&logoColor=white" alt="Demo"></a>
 </div>
 
 ---
