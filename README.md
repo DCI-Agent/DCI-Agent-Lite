@@ -4,14 +4,15 @@
   <img src="assets/imgs/banner.svg" alt="DCI-Agent-Lite" height="120">
 </p>
 
-<h3 align="center">
-  Beyond Semantic Similarity: Rethinking Retrieval for Agentic Search via Direct Corpus Interaction
-</h3>
+<h2 align="center">
+  Beyond Semantic Similarity: Rethinking Retrieval for Agentic Search<br>
+  via Direct Corpus Interaction
+</h2>
 
 <div align="center">
   <a href="#"><img src="https://img.shields.io/badge/arXiv-B31B1B?style=for-the-badge&logo=arXiv&logoColor=white" alt="arXiv"></a>
   <a href="#"><img src="https://img.shields.io/badge/Twitter-000000?style=for-the-badge&logo=X&logoColor=white" alt="Twitter"></a>
-  <a href="#"><img src="https://img.shields.io/badge/Hugging%20Face-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black" alt="Hugging Face"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Hugging%20Face-FFD21E?style=for-the-badge&logo=huggingface&logoColor=white" alt="Hugging Face"></a>
   <a href="#"><img src="https://img.shields.io/badge/Demo-F97316.svg?style=for-the-badge&logo=gradio&logoColor=white" alt="Demo"></a>
 </div>
 
