@@ -1,14 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="760" height="196" viewBox="0 0 760 196" fill="none">
   <defs>
     <linearGradient id="bg" x1="48" y1="30" x2="672" y2="150" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#FFF8E7"/>
-      <stop offset="0.55" stop-color="#FFF1C7"/>
-      <stop offset="1" stop-color="#FFE4A8"/>
+      <stop stop-color="#F7DFAB"/>
+      <stop offset="0.55" stop-color="#F1D596"/>
+      <stop offset="1" stop-color="#E8C97C"/>
     </linearGradient>
   </defs>
 
   <rect x="12" y="12" width="736" height="172" rx="32" fill="url(#bg)"/>
-  <rect x="12" y="12" width="736" height="172" rx="32" stroke="#111111" stroke-opacity="0.08"/>
+  <rect x="12" y="12" width="736" height="172" rx="32" stroke="#111111" stroke-opacity="0.12"/>
 
   <g transform="translate(32 16)">
     <image
@@ -23,7 +23,7 @@
 
   <g fill="#101010" font-family="'Segoe UI', Arial, sans-serif">
     <text x="214" y="90" font-size="52" font-weight="700" letter-spacing="0.3">DCI-Agent-Lite</text>
-    <line x1="214" y1="114" x2="560" y2="114" stroke="#8B8B8B" stroke-opacity="0.45" stroke-width="1.5"/>
-    <text x="214" y="144" font-size="24" font-weight="600" fill="#3E3E3E">DeepResearch on your personal knowledge base</text>
+    <line x1="214" y1="114" x2="560" y2="114" stroke="#7A6B54" stroke-opacity="0.42" stroke-width="1.5"/>
+    <text x="214" y="144" font-size="21" font-weight="600" fill="#3E3E3E">DeepResearch on your personal knowledge base</text>
   </g>
 </svg>
