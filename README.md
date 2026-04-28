@@ -22,7 +22,7 @@
 
 **DCI** is a **direct corpus interaction paradigm** for agentic search. Instead of querying a fixed semantic retriever or retrieval API, the agent **searches the raw corpus directly with terminal tools**. This lets the agent freely compose search primitives and interact with the corpus as an open research environment. It also substantially simplifies the overall retrieval system. 
 
-**DCI-Agent-Lite** is the minimal open implementation of this paradigm, built on [Pi](https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent) with bash tools and lightweight context management for long-horizon deep research. With `GPT-5.4-nano`, it achieves an impressive **62.9%** accuracy on BrowseComp-Plus, surpassing retrieval-agents powered by `GPT-5.2`, `Claude-Sonnet-4.6`, `Qwen3.5-122B`, and `GLM-4.7`.
+**DCI-Agent-Lite** is the **minimal open implementation** of this paradigm, built on [Pi](https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent) with bash tools and lightweight context management for **long-horizon deep research**. With `GPT-5.4-nano`, it achieves an impressive **62.9%** accuracy on BrowseComp-Plus, surpassing agentic search agents powered by `GPT-5.2`, `Claude-Sonnet-4.6`, `Qwen3.5-122B`, and `GLM-4.7`.
 
 <div align="center">
   <img src="assets/imgs/teaser.png" alt="OpenResearcher Teaser" width="100%" style="max-width: 850px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
@@ -32,7 +32,7 @@
 
 ## 🏆 Main Results
 
-Across agentic search, knowledge-intensive QA, and IR ranking, DCI-Agent-Lite consistently demonstrates that direct corpus interaction is a simple and effective alternative to fixed retrieval pipelines.
+DCI-Agent-Lite outperforms top-performing baselines across 13 benchmarks spanning agentic search, knowledge-intensive QA, and IR-ranking tasks.
 
 - **Table 1 -** Knowledge-intensive QA results across evaluated models and retrieval settings.
 
