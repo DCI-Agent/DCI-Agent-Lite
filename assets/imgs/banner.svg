@@ -42,8 +42,7 @@
   </g>
 
   <g fill="#101010" font-family="'Segoe UI', Arial, sans-serif">
-    <text x="214" y="90" font-size="52" font-weight="700" letter-spacing="0.3">DCI-Agent-Lite</text>
-    <line x1="214" y1="114" x2="560" y2="114" stroke="#7A6B54" stroke-opacity="0.42" stroke-width="1.5"/>
-    <text x="214" y="144" font-size="21" font-weight="600" fill="#3E3E3E">DeepResearch on your personal knowledge base</text>
+    <text x="214" y="110" font-size="52" font-weight="700" letter-spacing="0.3">DCI-Agent-Lite</text>
+    <line x1="214" y1="134" x2="560" y2="134" stroke="#7A6B54" stroke-opacity="0.42" stroke-width="1.5"/>
   </g>
 </svg>

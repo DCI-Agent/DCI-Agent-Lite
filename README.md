@@ -5,8 +5,7 @@
 </p>
 
 <h2 align="center">
-  Beyond Semantic Similarity: Rethinking Retrieval for Agentic Search<br>
-  via Direct Corpus Interaction
+  DeepResearch on your personal knowledge base
 </h2>
 
 <div align="center">
