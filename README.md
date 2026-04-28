@@ -1,20 +1,27 @@
 <a name="readme-top"></a>
 
 <p align="center">
-  <img src="assets/imgs/banner.svg" alt="DCI-Agent-Lite" height="88">
+  <img src="assets/imgs/banner.svg" alt="DCI-Agent-Lite" height="120">
 </p>
 
-<p align="center">
+<h3 align="center">
   Beyond Semantic Similarity: Rethinking Retrieval for Agentic Search via Direct Corpus Interaction
-</p>
+</h3>
+
+<div align="center">
+  <a href="#"><img src="https://img.shields.io/badge/arXiv-B31B1B?style=for-the-badge&logo=arXiv&logoColor=white" alt="arXiv"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Twitter-000000?style=for-the-badge&logo=X&logoColor=white" alt="Twitter"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Hugging%20Face-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black" alt="Hugging Face"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Demo-F97316.svg?style=for-the-badge&logo=gradio&logoColor=white" alt="Demo"></a>
+</div>
 
 ---
 
 ## 💥 Introduction
 
-**DCI** is a direct corpus interaction paradigm for agentic search. Instead of querying a fixed semantic retriever or retrieval API, the agent searches the raw corpus directly with terminal tools. This lets the agent freely compose search primitives and interact with the corpus as an open research environment. It also substantially simplifies the overall retrieval system. 
+**DCI** is a **direct corpus interaction paradigm** for agentic search. Instead of querying a fixed semantic retriever or retrieval API, the agent **searches the raw corpus directly with terminal tools**. This lets the agent freely compose search primitives and interact with the corpus as an open research environment. It also substantially simplifies the overall retrieval system. 
 
-**DCI-Agent-Lite** is the minimal open implementation of this paradigm, built on [Pi](https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent) with bash tools and lightweight context management for long-horizon deep research. With `GPT-5.4-nano`, it achieves an impressive 62.9% accuracy on BrowseComp-Plus, surpassing retrieval-agents powered by `GPT-5.2`, `Claude-Sonnet-4.6`, `Qwen3.5-122B`, and `GLM-4.7`.
+**DCI-Agent-Lite** is the **minimal open implementation** of this paradigm, built on [Pi](https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent) with **bash tools** and **lightweight context management** for **long-horizon deep research**. With `GPT-5.4-nano`, it achieves an impressive **62.9%** accuracy on BrowseComp-Plus, **surpassing** agentic search agents powered by `GPT-5.2`, `Claude-Sonnet-4.6`, `Qwen3.5-122B`, and `GLM-4.7`.
 
 <div align="center">
   <img src="assets/imgs/teaser.png" alt="OpenResearcher Teaser" width="100%" style="max-width: 850px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
@@ -24,6 +31,26 @@
 
 ## 🏆 Main Results
 
+DCI-Agent-Lite outperforms top-performing baselines across 13 benchmarks spanning agentic search, knowledge-intensive QA, and IR-ranking tasks.
+
+- **Table 1 -** Agentic Search results.
+
+<div align="center">
+  <img src="assets/imgs/bcp.png" alt="Knowledge-intensive QA results" width="65%" style="max-width: 850px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+</div>
+
+
+- **Table 2 -** Knowledge-intensive QA results.
+
+<div align="center">
+  <img src="assets/imgs/table_qa.png" alt="Knowledge-intensive QA results" width="85%" style="max-width: 850px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+</div>
+
+- **Table 3 -** IR ranking results.
+
+<div align="center">
+  <img src="assets/imgs/table_ir.png" alt="IR ranking results" width="85%" style="max-width: 850px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+</div>
 
 
 ## 🌟 Key Features
@@ -152,6 +179,15 @@ It uses three simple strategies:
 - **Truncation** shortens large tool results in each turn.
 - **Compaction** keeps recent turns and replaces older tool results with placeholders.
 - **Summarization** summarizes older history when the context gets crowded.
+
+<details>
+<summary><strong>Context management illustration</strong></summary>
+
+<div align="center">
+  <img src="assets/imgs/context_management.png" alt="Context management strategies: truncation, compaction, and summarization" width="100%" style="max-width: 900px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+</div>
+
+</details>
 
 The runtime levels move from no context management to more aggressive compression:
 
