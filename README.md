@@ -37,7 +37,7 @@ DCI-Agent-Lite outperforms top-performing baselines across 13 benchmarks spannin
 - **Table 1 -** Agentic Search results.
 
 <div align="center">
-  <img src="assets/imgs/bcp.png" alt="Knowledge-intensive QA results" width="85%" style="max-width: 850px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+  <img src="assets/imgs/bcp.png" alt="Knowledge-intensive QA results" width="65%" style="max-width: 850px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
 </div>
 
 
