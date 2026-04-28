@@ -1,23 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="760" height="196" viewBox="0 0 760 196" fill="none">
   <defs>
     <linearGradient id="bg" x1="36" y1="24" x2="724" y2="172" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#F7F8FA"/>
-      <stop offset="0.22" stop-color="#E9ECF1"/>
-      <stop offset="0.5" stop-color="#C9CFD8"/>
-      <stop offset="0.78" stop-color="#EEF1F5"/>
-      <stop offset="1" stop-color="#B7BEC9"/>
+      <stop stop-color="#EEF1F5"/>
+      <stop offset="0.26" stop-color="#E5E9EF"/>
+      <stop offset="0.56" stop-color="#E3E7ED"/>
+      <stop offset="0.82" stop-color="#E4E8EE"/>
+      <stop offset="1" stop-color="#D6DCE4"/>
     </linearGradient>
     <linearGradient id="sheen" x1="24" y1="18" x2="736" y2="178" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#FFFFFF" stop-opacity="0.82"/>
-      <stop offset="0.18" stop-color="#FFFFFF" stop-opacity="0.34"/>
-      <stop offset="0.52" stop-color="#FFFFFF" stop-opacity="0.10"/>
-      <stop offset="0.82" stop-color="#FFFFFF" stop-opacity="0.28"/>
-      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.06"/>
+      <stop stop-color="#FFFFFF" stop-opacity="0.54"/>
+      <stop offset="0.24" stop-color="#FFFFFF" stop-opacity="0.24"/>
+      <stop offset="0.56" stop-color="#FFFFFF" stop-opacity="0.10"/>
+      <stop offset="0.82" stop-color="#FFFFFF" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.08"/>
     </linearGradient>
     <linearGradient id="depth" x1="380" y1="12" x2="380" y2="184" gradientUnits="userSpaceOnUse">
       <stop stop-color="#FFFFFF" stop-opacity="0"/>
-      <stop offset="0.58" stop-color="#7E8796" stop-opacity="0.04"/>
-      <stop offset="1" stop-color="#3E4756" stop-opacity="0.18"/>
+      <stop offset="0.62" stop-color="#7E8796" stop-opacity="0.03"/>
+      <stop offset="1" stop-color="#4F5867" stop-opacity="0.10"/>
     </linearGradient>
     <filter id="shadow" x="0" y="0" width="760" height="196" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
       <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#2F3742" flood-opacity="0.16"/>
