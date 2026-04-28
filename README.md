@@ -34,28 +34,25 @@
 
 DCI-Agent-Lite outperforms top-performing baselines across 13 benchmarks spanning agentic search, knowledge-intensive QA, and IR-ranking tasks.
 
-- **Table 1 -** Knowledge-intensive QA results across evaluated models and retrieval settings.
+- **Table 1 -** Agentic Search results.
+
+<div align="center">
+  <img src="assets/imgs/bcp.png" alt="Knowledge-intensive QA results" width="85%" style="max-width: 850px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+</div>
+
+
+- **Table 2 -** Knowledge-intensive QA results.
 
 <div align="center">
   <img src="assets/imgs/table_qa.png" alt="Knowledge-intensive QA results" width="85%" style="max-width: 850px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
 </div>
 
-- **Table 2 -** IR ranking results across evaluated models and retrieval settings.
+- **Table 3 -** IR ranking results.
 
 <div align="center">
   <img src="assets/imgs/table_ir.png" alt="IR ranking results" width="85%" style="max-width: 850px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
 </div>
 
-<details>
-<summary><strong>BrowseComp-Plus results and Bash intent analysis</strong></summary>
-
-Left: Results on all 830 BrowseComp-Plus questions with the Sonnet 4.6 backbone, comparing DCI-Agent-CC to the retrieval agent using Qwen3-Embedding-8B as the retriever. Right: Distribution of tool calls and Bash intents across all DCI-Agent-CC runs, illustrating how the dominant Bash tool decomposes into ten concrete command intents.
-
-<div align="center">
-  <img src="assets/imgs/bash_ribbon_fig.png" alt="BrowseComp-Plus results and Bash intent analysis" width="100%" style="max-width: 850px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-</div>
-
-</details>
 
 ## 🌟 Key Features
 - 🔒 **Your private deep-research assistant**: Point DCI-Agent-Lite at a local corpus and start immediately. It searches, inspects, cross-checks, and answers from your own knowledge base without sending documents to a hosted retrieval service.
