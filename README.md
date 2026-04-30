@@ -5,7 +5,7 @@
 </p>
 
 <h2 align="center">
-  DeepResearch on Your Personal Knowledge Base
+  Deep Research on Your Personal Knowledge Base
 </h2>
 
 <div align="center">
