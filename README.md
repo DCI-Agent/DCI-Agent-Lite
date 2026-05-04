@@ -326,7 +326,7 @@ bash scripts/bright/run_robotics.sh
     </td>
      <td align="center">
         <a href="https://hanj.cs.illinois.edu/">
-            <img src="https://hanj.cs.illinois.edu/images/hanj_tour.jpg" width="65px;" alt="Jiawei Han"/>
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYsR82-ravgyteSRLka-SC5A9EwwlJ0opdlVb_4PHVAFHzHu_dmYjegv43Z7gF2MC2k2euJEAA3y4GXrZ-m-h_7F9QWtwd8ITdgD6WMsdMEsmuzb_K&s=10&ec=121643094" width="80px;" alt="Jiawei Han"/>
             <br />
             <sub><b>Jiawei Han</b></sub>
         </a>
