@@ -256,6 +256,105 @@ bash scripts/bright/run_economics.sh
 bash scripts/bright/run_robotics.sh
 ```
 
+## 🤝 Core Contributors
+
+<table>
+<tr>
+    <td align="center">
+        <a href="https://zhuofeng-li.github.io/">
+            <img src="https://github.com/Zhuofeng-Li.png" width="75px;" alt="Zhuofeng Li"/>
+            <br />
+            <sub><b>Zhuofeng Li</b></sub>
+        </a>
+    </td>
+        <td align="center">
+        <a href="https://github.com/jdf-prog">
+            <img src="https://github.com/jdf-prog.png" width="75px;" alt="Dongfu Jiang"/>
+            <br />
+            <sub><b>Dongfu Jiang</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://isaacghx.github.io/about/">
+            <img src="https://github.com/IsaacGHX.png" width="75px;" alt="Haoxiang Zhang"/>
+            <br />
+            <sub><b>Haoxiang Zhang</b></sub>
+        </a>
+    </td>
+    </td>
+        <td align="center">
+        <a href="https://congwei1230.github.io/">
+            <img src="https://congwei1230.github.io/images/profile.png" width="75px;" alt="Cong Wei"/>
+            <br />
+            <sub><b>Cong Wei</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://lupantech.github.io/">
+            <img src="https://github.com/lupantech.png" width="75px;" alt="Pan Lu"/>
+            <br />
+            <sub><b>Pan Lu</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/erenup">
+            <img src="https://github.com/erenup.png" width="75px;" alt="Ping Nie"/>
+            <br />
+            <sub><b>Ping Nie</b></sub>
+        </a>
+    </td>
+</tr>
+</table>
+
+## 🎓 Advisors
+
+<table>
+<tr>
+        <td align="center">
+        <a href="https://yejinc.github.io/">
+            <img src="https://yejinc.github.io/profile-uw-2022.jpeg" width="70px;" alt="Yejin Choi"/>
+            <br />
+            <sub><b>Yejin Choi</b></sub>
+        </a>
+    </td>
+        <td align="center">
+        <a href="https://www.james-zou.com/">
+            <img src="https://static.wixstatic.com/media/0f3e8f_cfa7e327b97745ddb8c4a66454b5eb3e~mv2.jpg/v1/fill/w_199,h_279,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/46824428A5822_ForWeb.jpg" width="60px;" alt="James Zou"/>
+            <br />
+            <sub><b>James Zou</b></sub>
+        </a>
+    </td>
+     <td align="center">
+        <a href="https://hanj.cs.illinois.edu/">
+            <img src="https://hanj.cs.illinois.edu/images/hanj_tour.jpg" width="65px;" alt="Jiawei Han"/>
+            <br />
+            <sub><b>Jiawei Han</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/wenhuchen">
+            <img src="https://github.com/wenhuchen.png" width="75px;" alt="Wenhu Chen"/>
+            <br />
+            <sub><b>Wenhu Chen</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://cs.uwaterloo.ca/~jimmylin/">
+            <img src="https://github.com/lintool.png" width="75px;" alt="Jimmy Lin"/>
+            <br />
+            <sub><b>Jimmy Lin</b></sub>
+        </a>
+    </td>
+        <td align="center">
+        <a href="https://yuzhimanhua.github.io/">
+            <img src="https://yuzhimanhua.github.io/profile_pic.jpg" width="75px;" alt="Yu Zhang"/>
+            <br />
+            <sub><b>Yu Zhang</b></sub>
+        </a>
+    </td>
+</tr>
+</table>
+
 <a name="acknowledgements"></a>
 ## 🙏 Acknowledgements
 
