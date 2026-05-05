@@ -21,7 +21,7 @@ REPO_ROOT=$(cd "$SCRIPT_DIR/../.." && pwd)
 
 uv run python "$REPO_ROOT/scripts/bcplus_eval/run_bcplus_eval.py" \
   --enable-ir \
-  --dataset $REPO_ROOT/data/dci-bench/data/bright_earth_science/bright_earth_science.jsonl \
+  --dataset "$REPO_ROOT/data/dci-bench/data/bright_earth_science/bright_earth_science.jsonl" \
   --output-root "$REPO_ROOT/outputs/bright/earth_science" \
   --corpus-dir "$REPO_ROOT/corpus/bright_corpus/earth_science" \
   --package-dir "$REPO_ROOT/pi-mono/packages/coding-agent" \
@@ -32,4 +32,5 @@ uv run python "$REPO_ROOT/scripts/bcplus_eval/run_bcplus_eval.py" \
   --max-turns 300 \
   --max-concurrency 10 \
   --runtime-context-level level3 \
+  --pi-thinking-level high \
   --node-max-old-space-size-mb 8192

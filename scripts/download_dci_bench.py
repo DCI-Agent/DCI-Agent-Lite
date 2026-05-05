@@ -24,11 +24,25 @@ def main() -> None:
 
     print(f"==> Downloading {repo_id}...")
     try:
+        datasets = [
+            "2wikimultihopqa",
+            "bamboogle",
+            "bright_biology",
+            "bright_earth_science",
+            "bright_economics",
+            "bright_robotics",
+            "browsecomp-plus",
+            "hotpotqa",
+            "musique",
+            "nq",
+            "triviaqa",
+        ]
         snapshot_download(
             repo_id=repo_id,
             repo_type="dataset",
             local_dir=str(args.local_dir),
             local_dir_use_symlinks=False,
+            allow_patterns=[f"data/{d}/**" for d in datasets] + ["*.md", "*.json"],
         )
         print(f"\n==> Downloaded successfully to {args.local_dir}")
     except Exception as e:
