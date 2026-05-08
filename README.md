@@ -367,10 +367,11 @@ bash scripts/bright/run_robotics.sh
 ## 📚 Citation
 
 ```bibtex
-@misc{dci2025,
-  title = {DCI: High-Resolution Corpus Interaction},
-  author = {Placeholder},
-  year = {2025}
+@article{li2026beyond,
+  title={Beyond Semantic Similarity: Rethinking Retrieval for Agentic Search via Direct Corpus Interaction},
+  author={Li, Zhuofeng and Zhang, Haoxiang and Wei, Cong and Lu, Pan and Nie, Ping and Lu, Yi and Bai, Yuyang and Feng, Shangbin and Zhu, Hangxiao and Zhong, Ming and Zhang, Yuyu and Xie, Jianwen and Choi, Yejin and Zou, James and Han, Jiawei and Chen, Wenhu and Lin, Jimmy and Jiang, Dongfu and Zhang, Yu},
+  journal={arXiv preprint arXiv:2605.05242},
+  year={2026}
 }
 ```
 
