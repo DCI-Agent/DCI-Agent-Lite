@@ -10,7 +10,7 @@
 
 <div align="center">
   <a href="https://huggingface.co/papers/2605.05242"><img src="https://img.shields.io/badge/arXiv-B31B1B?style=for-the-badge&logo=arXiv&logoColor=white" alt="arXiv"></a>
-  <a href="#"><img src="https://img.shields.io/badge/Twitter-000000?style=for-the-badge&logo=X&logoColor=white" alt="Twitter"></a>
+  <a href="https://x.com/zhuofengli96475/status/2052784645398303198"><img src="https://img.shields.io/badge/Twitter-000000?style=for-the-badge&logo=X&logoColor=white" alt="Twitter"></a>
   <a href="https://huggingface.co/DCI-Agent"><img src="https://img.shields.io/badge/Hugging%20Face-FFD21E?style=for-the-badge&logo=huggingface&logoColor=white" alt="Hugging Face"></a>
   <a href="https://huggingface.co/spaces/DCI-Agent/demo"><img src="https://img.shields.io/badge/Demo-F97316.svg?style=for-the-badge&logo=gradio&logoColor=white" alt="Demo"></a>
   <a href="https://huggingface.co/datasets/DCI-Agent/eval-logs"><img src="https://img.shields.io/badge/Eval%20Logs-755BB4?style=for-the-badge&logo=google-sheets&logoColor=white" alt="Eval Logs"></a>
