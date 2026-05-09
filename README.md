@@ -376,3 +376,13 @@ bash scripts/bright/run_robotics.sh
 ```
 
 <p align="right"><a href="#readme-top">↑ Back to Top ↑</a></p>
+
+## Star History
+
+<a href="https://www.star-history.com/?repos=DCI-Agent%2FDCI-Agent-Lite&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=DCI-Agent/DCI-Agent-Lite&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=DCI-Agent/DCI-Agent-Lite&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=DCI-Agent/DCI-Agent-Lite&type=date&legend=top-left" />
+ </picture>
+</a>
