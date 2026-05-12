@@ -12,6 +12,9 @@ uv run python scripts/bcplus_eval/run_bcplus_eval.py
 
 # OpenAI
 bash scripts/bcplus_eval/run_bcplus_eval_openai.sh
+
+# Groq (configure Pi first; see assets/docs/groq.md)
+bash scripts/bcplus_eval/run_bcplus_eval_groq.sh
 ```
 
 ### Runtime-context-level evals
@@ -20,6 +23,8 @@ bash scripts/bcplus_eval/run_bcplus_eval_openai.sh
 bash scripts/bcplus_eval/run_bcplus_eval_openai.sh level0   # level0
 bash scripts/bcplus_eval/run_bcplus_eval_openai.sh level1   # level1
 bash scripts/bcplus_eval/run_bcplus_eval_openai.sh level3   # level3
+
+bash scripts/bcplus_eval/run_bcplus_eval_groq.sh level3   # Groq agent (Pi config required)
 
 # Fixed level3 (non-parameterized)
 bash scripts/bcplus_eval/run_L3.sh
@@ -34,7 +39,7 @@ Common parameters used in the eval scripts:
 | `--dataset` | `data/bcplus_qa.jsonl` | QA dataset |
 | `--output-root` | `outputs/bcplus_eval/...` | Results directory |
 | `--corpus-dir` | `corpus/bc_plus_docs` | Exported corpus |
-| `--provider` | `anthropic` / `openai` | LLM provider |
+| `--provider` | `anthropic` / `openai` / `groq` | LLM provider (Groq is custom Pi config) |
 | `--model` | `claude-sonnet-4-20250514` | Model identifier |
 | `--tools` | `read,bash` | Enabled tools |
 | `--max-turns` | `100` | Max conversation turns |

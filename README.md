@@ -126,6 +126,7 @@ Common variables:
 
 - `OPENAI_API_KEY` for OpenAI model runs and benchmark judging by default.
 - `ANTHROPIC_API_KEY` for Anthropic model runs.
+- `GROQ_API_KEY` when using a Pi provider named `groq` (see [assets/docs/groq.md](assets/docs/groq.md)).
 
 <a name="quick-start"></a>
 ## ⚡ Quick Start
@@ -168,7 +169,7 @@ uv run dci-agent-lite \
 
 Programmatic runs save artifacts under `outputs/runs/<timestamp>/`. The final answer is in `final.txt`, the original question is in `question.txt`, and the full trajectory is in `conversation_full.json`. To choose a specific location, pass `--output-dir path/to/run`. 
 
-More runnable examples for OpenAI, Anthropic and vLLM are available in [`scripts/examples/`](scripts/examples/) as `dci_basic_*.sh`. See the [setup guide](assets/docs/setup.md#5-optional-configure-a-local-vllm-provider) for vLLM configuration.
+More runnable examples for OpenAI, Anthropic, Groq, and vLLM are available in [`scripts/examples/`](scripts/examples/) as `dci_basic_*.sh`. See [Groq setup](assets/docs/groq.md) and the [setup guide](assets/docs/setup.md#5-optional-configure-a-local-vllm-provider) for vLLM configuration.
 
 
 ## 🚀 Context Management Strategies
