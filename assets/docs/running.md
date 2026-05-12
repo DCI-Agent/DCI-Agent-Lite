@@ -37,6 +37,7 @@ Provider-specific runnable examples live under `scripts/examples/`:
 
 - Anthropic: `dci_basic_anthropic_example.sh`
 - OpenAI: `dci_basic_openai_example.sh`
+- Groq: `dci_basic_groq_example.sh` (see [groq.md](groq.md))
 - vLLM: `dci_basic_vllm_example.sh`
 
 ### Interactive terminal

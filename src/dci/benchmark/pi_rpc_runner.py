@@ -1356,7 +1356,10 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument("--question-file", type=Path, help="Read the question from a UTF-8 text file.")
-    parser.add_argument("--provider", help="Provider passed to pi, e.g. anthropic or openai.")
+    parser.add_argument(
+        "--provider",
+        help="Provider passed to pi, e.g. anthropic, openai, or a custom slug such as groq (see assets/docs/groq.md).",
+    )
     parser.add_argument("--model", help="Model id or pattern passed to pi.")
     parser.add_argument(
         "--package-dir",
