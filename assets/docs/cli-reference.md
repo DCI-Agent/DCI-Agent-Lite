@@ -34,7 +34,7 @@ Terminal mode forwards positional text or `--question-file` as the initial messa
 
 | Option | Description |
 |--------|-------------|
-| `--provider <name>` | Provider passed to Pi, such as `openai`, `anthropic`, or a custom provider like `vllm`. |
+| `--provider <name>` | Provider passed to Pi, such as `openai`, `anthropic`, or a custom provider like `vllm` or `groq` (see [groq.md](groq.md)). |
 | `--model <id>` | Model ID or pattern passed to Pi. |
 | `--extra-arg <arg>` | Extra CLI argument forwarded to Pi. Repeatable. Useful for Pi options not modeled directly by DCI-Agent-Lite, such as `--thinking high` or `--context-management-level level3`. |
 

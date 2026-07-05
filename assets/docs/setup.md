@@ -125,6 +125,10 @@ If your local server ignores auth:
 export VLLM_API_KEY=dummy
 ```
 
+### 6. Optional: Groq
+
+Groq is configured like vLLM: add an OpenAI-compatible provider entry to Pi `models.json`, then pass `--provider groq`. See [groq.md](groq.md).
+
 ## Data Preparation
 
 All benchmark datasets are downloaded from the [DCI-Agent/dci-bench](https://huggingface.co/datasets/DCI-Agent/dci-bench) HuggingFace dataset.
