@@ -336,9 +336,11 @@ def normalize_retrieved_path(path: str, corpus_dir: Optional[Path]) -> str:
 def compute_ndcg_at_k(retrieved: List[str], gold_set: set, k: int) -> float:
     if not gold_set:
         return 0.0
+    # A document only counts at its first rank, otherwise, repeats would push NDCG > 1
+    unique_retrieved = list(dict.fromkeys(retrieved))
     dcg = sum(
         1.0 / math.log2(rank + 2)
-        for rank, doc in enumerate(retrieved[:k])
+        for rank, doc in enumerate(unique_retrieved[:k])
         if doc in gold_set
     )
     ideal_k = min(len(gold_set), k)
